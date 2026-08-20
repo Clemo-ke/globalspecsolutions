@@ -1,0 +1,13 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/admin/hero-slides/route.js")
+R.c("server/chunks/[root-of-the-server]__07kt330._.js")
+R.c("server/chunks/01vs_next_0yc6vcf._.js")
+R.c("server/chunks/0hkd_kysely_dist_10r6z.f._.js")
+R.c("server/chunks/01vs_next_dist_10r_v.0._.js")
+R.c("server/chunks/lib_auth_ts_05~zlc~._.js")
+R.c("server/chunks/[root-of-the-server]__102-kc5._.js")
+R.c("server/chunks/0hkd_kysely_dist_0_~8~a4._.js")
+R.c("server/chunks/126b_@better-auth_kysely-adapter_dist_index_mjs_0-8w6.9._.js")
+R.c("server/chunks/106a_@better-auth_core_dist_0~.1h6y._.js")
+R.c("server/chunks/_next-internal_server_app_api_admin_hero-slides_route_actions_0si5usa.js")
+R.m(50145)
+module.exports=R.m(50145).exports

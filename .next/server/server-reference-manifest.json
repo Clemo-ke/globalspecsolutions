@@ -1,0 +1,522 @@
+{
+  "node": {
+    "00d1752284de4f1621da326a9c91dbbdb2f021f644": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": 41633,
+          "async": false,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "app/admin/layout.tsx"
+        }
+      },
+      "filename": "app/admin/layout.tsx",
+      "exportedName": "$$RSC_SERVER_ACTION_0"
+    },
+    "0030ddc7459a8343b4a1c4b752bc70070b03773e40": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getClients",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getClients",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getClients"
+    },
+    "004ea23b2bc99fb6316998e507b77e827163ba5dab": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getServices",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getServices",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getServices"
+    },
+    "006ba46c7dbdfaf7fc07ccf5ee2a2a8d683cb01eea": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getTeamMembers",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getTeamMembers",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getTeamMembers"
+    },
+    "0087d18decf6c10d9039fb781763cf0b73e8fcdb3a": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getHeroSlides",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getHeroSlides",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getHeroSlides"
+    },
+    "009c8000644813bec666964351b3aa22836df16a75": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getSolutions",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getSolutions",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getSolutions"
+    },
+    "00f06c1960f0a354abebac02cd739d73ab5789b69b": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getProductCategories",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getProductCategories",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getProductCategories"
+    },
+    "400303619a51edb579f68957cba3c7927accc772ac": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteSolution",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteSolution",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteSolution"
+    },
+    "40133443a01c384ab4e37bf92332872411e4816d92": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createService",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createService",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createService"
+    },
+    "401e552786a1d564e983d3e0eda0751dbc18971604": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteService",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteService",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteService"
+    },
+    "40364d356ebe079cece198c6ec9f61525f05d26883": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "getProducts",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "getProducts",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "getProducts"
+    },
+    "405f1ba8388bf042882b32595ee277d1f94644e0ba": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createSolution",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createSolution",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createSolution"
+    },
+    "406215a738cbd166df58de66c317df854aa5810b0c": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteProduct",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteProduct",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteProduct"
+    },
+    "4081c85d7c8afc8d8fdbbd025e07964c08c1e1ccf1": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createHeroSlide",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createHeroSlide",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createHeroSlide"
+    },
+    "4085e3c10d2335ccc057fc503c6d6a8c5c181893b0": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteTeamMember",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteTeamMember",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteTeamMember"
+    },
+    "409602a8b3e0f646f42a9523be2fd386053383a83e": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createClient",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createClient",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createClient"
+    },
+    "4096bb61b72f9e506a283f5daa0ff6ce8f730bb3ce": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteHeroSlide",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteHeroSlide",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteHeroSlide"
+    },
+    "40b56c41197a0331785a968a6dddea65ef220344f7": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createProduct",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createProduct",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createProduct"
+    },
+    "40bc47995c02d3d64700ca98d71f8104b5a4cc31e6": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createTeamMember",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createTeamMember",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createTeamMember"
+    },
+    "40d3d728010ca49f0d7a4ba9ae8ccf22d9d6d6e332": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteClient",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteClient",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteClient"
+    },
+    "40dec80b2a46646cea202c503082a983d0d3f27d6e": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "deleteProductCategory",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "deleteProductCategory",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "deleteProductCategory"
+    },
+    "40fd00bcc65fa343437986b7c2f46c33442ad99c2c": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "createProductCategory",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "createProductCategory",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "createProductCategory"
+    },
+    "6016242b56ea996bab0d214e8edc291b629514f824": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateSolution",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateSolution",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateSolution"
+    },
+    "603e359d0bcf3a984deddb040f3509a4871c98a739": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateClient",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateClient",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateClient"
+    },
+    "6053bb68329a5d78242fb8c8b635d72b317a9e74fe": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateService",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateService",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateService"
+    },
+    "605808b2c90573648280ead725457e828009ea8463": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateHeroSlide",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateHeroSlide",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateHeroSlide"
+    },
+    "607d90ce9d10f5e45e4609838410cab7ea8f4cc531": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateTeamMember",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateTeamMember",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateTeamMember"
+    },
+    "60d3ba8f6eca75dcc1e0d365c82fcd4405488fec4d": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateProduct",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateProduct",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateProduct"
+    },
+    "60e94d1c96b9f8a978de1b7afb709b135da163a294": {
+      "workers": {
+        "app/solutions/[id]/page": {
+          "moduleId": 34840,
+          "async": false,
+          "exportedName": "updateProductCategory",
+          "filename": "app/actions/content.ts"
+        },
+        "app/solutions/page": {
+          "moduleId": 13950,
+          "async": false,
+          "exportedName": "updateProductCategory",
+          "filename": "app/actions/content.ts"
+        }
+      },
+      "filename": "app/actions/content.ts",
+      "exportedName": "updateProductCategory"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "vwvXJlQfcnddSv1CGeTKfgbZ6LlYsiIQ1dMAMBSKCT8="
+}
