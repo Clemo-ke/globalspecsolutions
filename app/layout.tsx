@@ -1,8 +1,15 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import { CartProvider } from '@/components/cart-context'
 import { QuoteCartProvider } from '@/components/quote-cart-context'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'Global Spec Solutions - Professional Business & Electrical Solutions',
@@ -29,11 +36,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#00BFFF' },
-    { media: '(prefers-color-scheme: dark)', color: '#FF6B35' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#00BFFF',
 }
 
 export default function RootLayout({
@@ -42,8 +46,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
-      <body className="antialiased">
+    <html lang="en" className={`light bg-white text-slate-900 ${inter.className}`}>
+      <body className="antialiased bg-white text-slate-900 font-sans">
         <CartProvider>
           <QuoteCartProvider>
             {children}
