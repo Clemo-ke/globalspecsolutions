@@ -14,7 +14,20 @@ export default async function PartnersPage() {
       <MainHeader siteSettings={siteSettings} />
 
       <main className="flex-1">
-        <section className="bg-slate-950 text-white py-16 px-4 border-b border-slate-800">
+        {/* Back to Home Header Bar */}
+        <div className="bg-slate-50 border-b border-slate-200 py-3 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-primary transition-colors"
+            >
+              <ArrowRight className="w-4 h-4 rotate-180" /> Back to Home
+            </Link>
+            <span className="text-xs text-slate-500 font-medium">GlobalSpec Solutions / Partners</span>
+          </div>
+        </div>
+
+        {/* Hero Header */}
           <div className="max-w-7xl mx-auto text-center space-y-4">
             <span className="text-xs font-extrabold uppercase tracking-widest text-primary block">Technology Ecosystem</span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight">Our OEM Partners & Manufacturers</h1>
