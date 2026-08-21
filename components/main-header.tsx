@@ -85,8 +85,7 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
           <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
-          <Link href="/shop" className="hover:text-primary transition-colors flex items-center gap-1">
-            <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+          <Link href="/shop" className="hover:text-primary transition-colors">
             Shop
           </Link>
           <Link href="/services" className="hover:text-primary transition-colors">

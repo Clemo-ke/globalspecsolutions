@@ -47,28 +47,6 @@ export default async function HomePage() {
         {/* Moving Services Slim Banner */}
         <MovingServicesBanner />
 
-        {/* E-commerce Callout Banner */}
-        <section className="bg-gradient-to-r from-primary via-primary/95 to-slate-900 text-white py-6 px-4">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <Zap className="w-6 h-6 text-amber-300 fill-amber-300 animate-pulse" />
-              </div>
-              <div>
-                <h3 className="font-extrabold text-base sm:text-lg">Online Equipment Shop Now Live!</h3>
-                <p className="text-xs sm:text-sm text-slate-200">
-                  Browse UPS systems, solar packages, and data center hardware with direct WhatsApp ordering.
-                </p>
-              </div>
-            </div>
-            <Link href="/shop">
-              <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-lg gap-2">
-                Visit Shop <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </section>
-
         {/* Featured Products Section */}
         <div id="products">
           <ProductsSection products={products as any} categories={categories as any} />
