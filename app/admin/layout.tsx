@@ -22,7 +22,7 @@ export default async function AdminLayout({
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/admin" className="font-extrabold text-xl tracking-wider text-primary uppercase">
-            GlobalSpec Admin
+            Global Specs Solutions Admin
           </Link>
           <span className="text-xs bg-primary/20 text-primary px-2.5 py-1 rounded-full font-semibold">
             CMS Portal
@@ -30,9 +30,6 @@ export default async function AdminLayout({
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-xs text-slate-400 font-medium hidden sm:inline">
-            Logged in as <strong className="text-slate-200">{session.user.email}</strong>
-          </span>
           <form action={async () => {
             'use server'
             await auth.api.signOut({ headers: await headers() })

@@ -181,7 +181,7 @@ export function AdminDashboardClient({
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
       {/* Mobile top navbar */}
       <div className="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between">
-        <span className="font-extrabold text-lg tracking-wide text-primary">GlobalSpec Admin</span>
+        <span className="font-extrabold text-lg tracking-wide text-primary">Global Specs Solutions Admin</span>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300">
           {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -195,8 +195,8 @@ export function AdminDashboardClient({
       >
         <div className="space-y-8">
           <div>
-            <span className="text-xl font-black text-primary tracking-wider uppercase block">
-              GlobalSpec
+            <span className="text-lg font-black text-primary tracking-wider uppercase block">
+              Global Specs Solutions
             </span>
             <span className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold block">
               Enterprise Dashboard
