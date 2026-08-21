@@ -33,14 +33,12 @@ export async function POST(req: Request) {
       name: body.name,
       slug: body.slug || slug,
       description: body.description || '',
-      shortDescription: body.shortDescription || body.description?.slice(0, 150) || '',
       price: body.price ? body.price.toString() : '0',
-      comparePrice: body.comparePrice ? body.comparePrice.toString() : null,
-      categoryId: body.categoryId ? Number(body.categoryId) : null,
+      salePrice: body.comparePrice ? body.comparePrice.toString() : null,
+      categoryId: body.categoryId ? Number(body.categoryId) : 1,
       imageUrl: body.imageUrl || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
       sku: body.sku || `GS-${Math.floor(Math.random() * 9000 + 1000)}`,
-      stock: body.stock ? Number(body.stock) : 10,
-      stockStatus: body.stockStatus || 'In Stock',
+      stockStatus: body.stockStatus || 'in_stock',
     })
 
     return Response.json({ success: true, message: 'Product created successfully' })
