@@ -1,6 +1,6 @@
 import { AdminDashboardClient } from '@/components/admin-dashboard-client'
 import { db } from '@/lib/db'
-import { orders, contactMessages, products, productCategories, quoteRequests, industries, partners, resources } from '@/lib/db/schema'
+import { orders, contactMessages, products, productCategories, quoteRequests, industries, partners, resources, services } from '@/lib/db/schema'
 import { getSiteSettings } from '@/lib/db-data'
 import { Metadata } from 'next'
 
@@ -48,6 +48,12 @@ export default async function AdminPage() {
     partnersList = await db.select().from(partners)
   } catch {}
 
+  let servicesList: any[] = []
+
+  try {
+    servicesList = await db.select().from(services)
+  } catch {}
+
   try {
     resourcesList = await db.select().from(resources)
   } catch {}
@@ -72,6 +78,7 @@ export default async function AdminPage() {
       recentQuotes={quotesList.reverse()}
       productsList={productsList}
       categoriesList={categoriesList}
+      servicesList={servicesList}
       industriesList={industriesList}
       partnersList={partnersList}
       resourcesList={resourcesList}

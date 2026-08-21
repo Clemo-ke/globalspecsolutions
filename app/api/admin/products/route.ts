@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { products, productCategories } from '@/lib/db/schema'
+import { products, productCategories, services, partners } from '@/lib/db/schema'
 import { headers } from 'next/headers'
 
 export async function GET() {
@@ -26,6 +26,32 @@ export async function POST(req: Request) {
         description: body.description || '',
       })
       return Response.json({ success: true, message: 'Category created' })
+    }
+
+    if (body.type === 'service') {
+      const slug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+      await db.insert(services).values({
+        name: body.name,
+        slug: body.slug || slug,
+        description: body.description || '',
+        details: body.details || body.description || '',
+        icon: body.icon || 'Server',
+        imageUrl: body.imageUrl || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80',
+      })
+      return Response.json({ success: true, message: 'Service created successfully' })
+    }
+
+    if (body.type === 'partner') {
+      const slug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+      await db.insert(partners).values({
+        name: body.name,
+        slug: body.slug || slug,
+        logoUrl: body.logoUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+        websiteUrl: body.websiteUrl || '',
+        description: body.description || '',
+        category: body.category || 'Technology Partner',
+      })
+      return Response.json({ success: true, message: 'Partner created successfully' })
     }
 
     const slug = body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')

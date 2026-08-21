@@ -34,6 +34,8 @@ interface AdminDashboardClientProps {
   recentMessages: any[]
   productsList: any[]
   categoriesList: any[]
+  servicesList?: any[]
+  partnersList?: any[]
   settingsMap: Record<string, string>
 }
 
@@ -43,9 +45,11 @@ export function AdminDashboardClient({
   recentMessages,
   productsList,
   categoriesList,
+  servicesList = [],
+  partnersList = [],
   settingsMap,
 }: AdminDashboardClientProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'messages' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'services' | 'partners' | 'messages' | 'settings'>('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settings, setSettings] = useState(settingsMap)
   const [savingSettings, setSavingSettings] = useState(false)
@@ -76,13 +80,26 @@ export function AdminDashboardClient({
   // Modals state
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showServiceModal, setShowServiceModal] = useState(false)
   const [showPartnerModal, setShowPartnerModal] = useState(false)
 
   // Creation forms state
   const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '10', description: '', categoryId: '', imageUrl: '' })
   const [newCategory, setNewCategory] = useState({ name: '', description: '' })
-  const [newPartner, setNewPartner] = useState({ name: '', category: '', logoUrl: '' })
+  const [newService, setNewService] = useState({ name: '', icon: 'Server', description: '', details: '', imageUrl: '' })
+  const [newPartner, setNewPartner] = useState({ name: '', category: 'Technology Partner', websiteUrl: '', description: '', logoUrl: '' })
   const [creating, setCreating] = useState(false)
+
+  // File upload handler (converts file to base64 data URL for direct instant usage)
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setter(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,6 +132,44 @@ export function AdminDashboardClient({
       if (res.ok) {
         setShowCategoryModal(false)
         setNewCategory({ name: '', description: '' })
+        window.location.reload()
+      }
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleCreateService = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreating(true)
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'service', ...newService }),
+      })
+      if (res.ok) {
+        setShowServiceModal(false)
+        setNewService({ name: '', icon: 'Server', description: '', details: '', imageUrl: '' })
+        window.location.reload()
+      }
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleCreatePartner = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreating(true)
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'partner', ...newPartner }),
+      })
+      if (res.ok) {
+        setShowPartnerModal(false)
+        setNewPartner({ name: '', category: 'Technology Partner', websiteUrl: '', description: '', logoUrl: '' })
         window.location.reload()
       }
     } finally {
@@ -203,6 +258,44 @@ export function AdminDashboardClient({
 
             <button
               onClick={() => {
+                setActiveTab('services')
+                setSidebarOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+                activeTab === 'services'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-md'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <FolderTree className="w-4 h-4" /> Services & Engineering
+              </span>
+              <span className="bg-slate-800 text-slate-200 text-xs px-2 py-0.5 rounded-full">
+                {servicesList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('partners')
+                setSidebarOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all ${
+                activeTab === 'partners'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-md'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <ImageIcon className="w-4 h-4" /> OEM Partners & Brands
+              </span>
+              <span className="bg-slate-800 text-slate-200 text-xs px-2 py-0.5 rounded-full">
+                {partnersList.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
                 setActiveTab('messages')
                 setSidebarOpen(false)
               }}
@@ -256,11 +349,13 @@ export function AdminDashboardClient({
               {activeTab === 'overview' && 'System Overview & Metrics'}
               {activeTab === 'orders' && 'Customer WhatsApp Orders'}
               {activeTab === 'products' && 'Product Inventory & Catalog'}
+              {activeTab === 'services' && 'Engineering Services & Solutions'}
+              {activeTab === 'partners' && 'OEM Brand Partners & Manufacturers'}
               {activeTab === 'messages' && 'Customer Inquiry Submissions'}
               {activeTab === 'settings' && 'Global Site Settings, Logo & Colors'}
             </h1>
             <p className="text-xs text-slate-400">
-              Manage live products, categories, corporate identity, and customer orders.
+              Create and manage products, services, brand partners, and site settings.
             </p>
           </div>
 
@@ -275,12 +370,21 @@ export function AdminDashboardClient({
             </Button>
 
             <Button
-              onClick={() => setShowCategoryModal(true)}
+              onClick={() => setShowServiceModal(true)}
               size="sm"
               variant="outline"
               className="border-slate-700 hover:bg-slate-800 text-slate-200 gap-1.5 text-xs"
             >
-              <Plus className="w-3.5 h-3.5" /> Create Category
+              <Plus className="w-3.5 h-3.5" /> Create Service
+            </Button>
+
+            <Button
+              onClick={() => setShowPartnerModal(true)}
+              size="sm"
+              variant="outline"
+              className="border-slate-700 hover:bg-slate-800 text-slate-200 gap-1.5 text-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Create Partner
             </Button>
           </div>
         </div>
@@ -463,6 +567,70 @@ export function AdminDashboardClient({
           </div>
         )}
 
+        {/* Tab 3.5: Services */}
+        {activeTab === 'services' && (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-lg text-slate-100">Engineering & Services Catalog ({servicesList.length})</h2>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setShowServiceModal(true)} size="sm" className="bg-primary hover:bg-primary/90 text-xs font-bold gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Create Service
+                </Button>
+                <Link href="/services" target="_blank">
+                  <Button size="sm" variant="outline" className="border-slate-700 text-xs gap-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" /> View Services Page
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {servicesList.map((srv) => (
+                <div key={srv.id} className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-100">{srv.name}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/20 text-primary">{srv.icon || 'Server'}</span>
+                  </div>
+                  <p className="text-xs text-slate-400 line-clamp-2">{srv.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3.6: Partners */}
+        {activeTab === 'partners' && (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-lg text-slate-100">OEM Partners & Brands ({partnersList.length})</h2>
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setShowPartnerModal(true)} size="sm" className="bg-primary hover:bg-primary/90 text-xs font-bold gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Create Partner
+                </Button>
+                <Link href="/partners" target="_blank">
+                  <Button size="sm" variant="outline" className="border-slate-700 text-xs gap-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" /> View Partners Page
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {partnersList.map((ptn) => (
+                <div key={ptn.id} className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-100 block">{ptn.name}</span>
+                    <span className="text-[10px] text-slate-400">{ptn.category || 'Technology Partner'}</span>
+                  </div>
+                  {ptn.logoUrl && (
+                    <img src={ptn.logoUrl} alt={ptn.name} className="h-8 w-auto object-contain max-w-[80px]" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tab 4: Inquiries */}
         {activeTab === 'messages' && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
@@ -505,14 +673,25 @@ export function AdminDashboardClient({
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-4">
                 <h3 className="font-bold text-slate-200 uppercase tracking-wider text-[11px] text-primary">Brand Logo & Primary Color</h3>
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1">Company Logo Image URL</label>
-                  <input
-                    type="text"
-                    value={settings.site_logo_url || ''}
-                    onChange={(e) => setSettings({ ...settings, site_logo_url: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-100"
-                    placeholder="https://example.com/logo.png"
-                  />
+                  <label className="block font-bold text-slate-300 mb-1">Company Logo Image (Upload or URL)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={settings.site_logo_url || ''}
+                      onChange={(e) => setSettings({ ...settings, site_logo_url: e.target.value })}
+                      className="flex-1 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-100"
+                      placeholder="https://example.com/logo.png"
+                    />
+                    <label className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700">
+                      Upload File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, (url) => setSettings({ ...settings, site_logo_url: url }))}
+                      />
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label className="block font-bold text-slate-300 mb-1">Primary Theme Accent Color</label>
@@ -634,14 +813,25 @@ export function AdminDashboardClient({
               </div>
 
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={newProduct.imageUrl}
-                  onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
-                  placeholder="https://images.unsplash.com/..."
-                />
+                <label className="block font-bold text-slate-300 mb-1">Product Image (Upload File or URL)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newProduct.imageUrl}
+                    onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                    placeholder="https://..."
+                  />
+                  <label className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700">
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, (url) => setNewProduct({ ...newProduct, imageUrl: url }))}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>
@@ -668,46 +858,139 @@ export function AdminDashboardClient({
         </div>
       )}
 
-      {/* Modal: Create Category */}
-      {showCategoryModal && (
+      {/* Modal: Create Service */}
+      {showServiceModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-lg text-slate-100">Create New Category</h3>
-              <button onClick={() => setShowCategoryModal(false)} className="text-slate-400 hover:text-slate-200">
+              <h3 className="font-bold text-lg text-slate-100">Create New Service</h3>
+              <button onClick={() => setShowServiceModal(false)} className="text-slate-400 hover:text-slate-200">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateCategory} className="space-y-4 text-xs">
+            <form onSubmit={handleCreateService} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Category Name *</label>
+                <label className="block font-bold text-slate-300 mb-1">Service Title *</label>
                 <input
                   type="text"
                   required
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  value={newService.name}
+                  onChange={(e) => setNewService({ ...newService, name: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
-                  placeholder="e.g. Telecommunications"
+                  placeholder="e.g. Data Centre Cooling & DCIM"
                 />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Service Image (Upload File or URL)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newService.imageUrl}
+                    onChange={(e) => setNewService({ ...newService, imageUrl: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                    placeholder="https://..."
+                  />
+                  <label className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700">
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, (url) => setNewService({ ...newService, imageUrl: url }))}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Description</label>
                 <textarea
-                  rows={2}
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                  rows={3}
+                  value={newService.description}
+                  onChange={(e) => setNewService({ ...newService, description: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="Comprehensive server room maintenance..."
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => setShowCategoryModal(false)} className="border-slate-800 text-xs">
+                <Button type="button" variant="outline" onClick={() => setShowServiceModal(false)} className="border-slate-800 text-xs">
                   Cancel
                 </Button>
                 <Button type="submit" disabled={creating} className="bg-primary hover:bg-primary/90 font-bold text-xs">
-                  {creating ? 'Saving...' : 'Create Category'}
+                  {creating ? 'Saving...' : 'Create Service'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Create Partner */}
+      {showPartnerModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-lg text-slate-100">Create Brand Partner</h3>
+              <button onClick={() => setShowPartnerModal(false)} className="text-slate-400 hover:text-slate-200">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreatePartner} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Partner / Brand Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newPartner.name}
+                  onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="e.g. Schneider Electric"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Category</label>
+                <input
+                  type="text"
+                  value={newPartner.category}
+                  onChange={(e) => setNewPartner({ ...newPartner, category: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="OEM Manufacturer"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Logo Image (Upload File or URL)</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newPartner.logoUrl}
+                    onChange={(e) => setNewPartner({ ...newPartner, logoUrl: e.target.value })}
+                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                    placeholder="https://..."
+                  />
+                  <label className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700">
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, (url) => setNewPartner({ ...newPartner, logoUrl: url }))}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" onClick={() => setShowPartnerModal(false)} className="border-slate-800 text-xs">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={creating} className="bg-primary hover:bg-primary/90 font-bold text-xs">
+                  {creating ? 'Saving...' : 'Create Partner'}
                 </Button>
               </div>
             </form>
