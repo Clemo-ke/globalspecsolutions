@@ -57,9 +57,6 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-3.5 h-3.5" /> ISO Certified & Reliable
             </span>
-            <Link href="/admin" className="hover:text-primary transition-colors">
-              Admin Portal
-            </Link>
           </div>
         </div>
       </div>
