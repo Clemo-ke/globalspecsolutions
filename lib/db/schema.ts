@@ -26,6 +26,8 @@ export const session = mysqlTable('session', {
   userId: varchar('userId', { length: 191 }).notNull(),
   expiresAt: timestamp('expiresAt').notNull(),
   token: varchar('token', { length: 191 }).notNull().unique(),
+  ipAddress: varchar('ipAddress', { length: 191 }),
+  userAgent: text('userAgent'),
   createdAt: timestamp('createdAt').defaultNow(),
   updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow(),
 })
