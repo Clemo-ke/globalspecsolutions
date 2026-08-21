@@ -81,22 +81,25 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold">
           <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
           <Link href="/shop" className="hover:text-primary transition-colors flex items-center gap-1">
             <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-            Shop Products
+            Shop
           </Link>
           <Link href="/services" className="hover:text-primary transition-colors">
             Services
           </Link>
-          <Link href="/#solutions" className="hover:text-primary transition-colors">
-            Solutions
+          <Link href="/industries" className="hover:text-primary transition-colors">
+            Industries
           </Link>
-          <Link href="/#portfolio" className="hover:text-primary transition-colors">
-            Portfolio
+          <Link href="/partners" className="hover:text-primary transition-colors">
+            Partners
+          </Link>
+          <Link href="/resources" className="hover:text-primary transition-colors">
+            Resources
           </Link>
           <Link href="/#contact" className="hover:text-primary transition-colors">
             Contact

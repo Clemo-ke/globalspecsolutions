@@ -11,6 +11,11 @@ import {
   orderItems,
   contactMessages,
   siteSettings,
+  industries,
+  partners,
+  resources,
+  quoteRequests,
+  quoteItems,
 } from '@/lib/db/schema'
 import { eq, desc, like, or, and } from 'drizzle-orm'
 
@@ -117,6 +122,45 @@ export async function getClients() {
 export async function getTeamMembers() {
   try {
     return await db.select().from(teamMembers).where(eq(teamMembers.isActive, true)).orderBy(teamMembers.orderPosition)
+  } catch {
+    return []
+  }
+}
+
+// Industries
+export async function getIndustries() {
+  try {
+    return await db.select().from(industries).where(eq(industries.isActive, true)).orderBy(industries.orderPosition)
+  } catch {
+    return []
+  }
+}
+
+// Partners
+export async function getPartners() {
+  try {
+    return await db.select().from(partners).where(eq(partners.isActive, true)).orderBy(partners.orderPosition)
+  } catch {
+    return []
+  }
+}
+
+// Resources / Downloads
+export async function getResources(category?: string) {
+  try {
+    if (category) {
+      return await db.select().from(resources).where(and(eq(resources.isActive, true), eq(resources.category, category))).orderBy(desc(resources.createdAt))
+    }
+    return await db.select().from(resources).where(eq(resources.isActive, true)).orderBy(desc(resources.createdAt))
+  } catch {
+    return []
+  }
+}
+
+// Quote Requests
+export async function getQuoteRequests() {
+  try {
+    return await db.select().from(quoteRequests).orderBy(desc(quoteRequests.createdAt))
   } catch {
     return []
   }

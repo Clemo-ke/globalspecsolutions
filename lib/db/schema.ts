@@ -220,6 +220,73 @@ export const media = mysqlTable('media', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// Industries Served
+export const industries = mysqlTable('industries', {
+  id: int('id').autoincrement().primaryKey(),
+  slug: varchar('slug', { length: 191 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  imageUrl: text('image_url'),
+  icon: varchar('icon', { length: 100 }),
+  orderPosition: int('order_position').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+})
+
+// Partners & Brands
+export const partners = mysqlTable('partners', {
+  id: int('id').autoincrement().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 191 }).notNull().unique(),
+  logoUrl: text('logo_url').notNull(),
+  websiteUrl: text('website_url'),
+  description: text('description'),
+  category: varchar('category', { length: 100 }), // e.g. Manufacturer, Technology Partner
+  isFeatured: boolean('is_featured').default(true),
+  orderPosition: int('order_position').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// Downloads & Resources (Case Studies, Datasheets, Whitepapers)
+export const resources = mysqlTable('resources', {
+  id: int('id').autoincrement().primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 191 }).notNull().unique(),
+  category: varchar('category', { length: 100 }).notNull(), // Datasheet, Whitepaper, Case Study, Manual
+  description: text('description'),
+  fileUrl: text('file_url').notNull(),
+  fileSize: varchar('file_size', { length: 50 }),
+  thumbnailUrl: text('thumbnail_url'),
+  isFeatured: boolean('is_featured').default(false),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// Quote Requests B2B Engine
+export const quoteRequests = mysqlTable('quote_requests', {
+  id: int('id').autoincrement().primaryKey(),
+  quoteNumber: varchar('quote_number', { length: 100 }).notNull().unique(),
+  customerName: varchar('customer_name', { length: 255 }).notNull(),
+  companyName: varchar('company_name', { length: 255 }),
+  customerEmail: varchar('customer_email', { length: 191 }).notNull(),
+  customerPhone: varchar('customer_phone', { length: 100 }).notNull(),
+  notes: text('notes'),
+  status: varchar('status', { length: 50 }).default('New').notNull(), // New, Reviewing, Quoted, Won, Lost, Closed
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+})
+
+export const quoteItems = mysqlTable('quote_items', {
+  id: int('id').autoincrement().primaryKey(),
+  quoteRequestId: int('quote_request_id').notNull(),
+  productId: int('product_id'),
+  productName: varchar('product_name', { length: 255 }).notNull(),
+  quantity: int('quantity').default(1).notNull(),
+  notes: text('notes'),
+})
+
 // Relations
 export const productCategories_relations = relations(
   productCategories,

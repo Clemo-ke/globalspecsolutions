@@ -71,6 +71,171 @@ export async function seedDatabase() {
       }
     }
 
+    // Seed Services
+    const serviceData = [
+      {
+        slug: 'electrical-works',
+        name: 'Electrical Works',
+        description: 'Quality installation of Critical power, UPS DC Power systems, switchgear, and high-voltage grid connections.',
+        icon: 'Zap',
+        imageUrl: '/images/WhatsApp Image 2026-08-17 at 21.11.55.jpeg',
+        orderPosition: 0,
+        isActive: true,
+      },
+      {
+        slug: 'ict-infrastructure',
+        name: 'ICT Infrastructure & Data Centre',
+        description: 'Data Centre design, implementation, operations, and maintenance by certified specialist engineers.',
+        icon: 'Server',
+        imageUrl: '/images/WhatsApp Image 2026-08-17 at 21.12.12.jpeg',
+        orderPosition: 1,
+        isActive: true,
+      },
+      {
+        slug: 'renewable-energy',
+        name: 'Renewable Energy',
+        description: 'Industrial solar solutions, solar power plants, battery storage systems, and energy efficiency audits.',
+        icon: 'Sun',
+        imageUrl: '/images/WhatsApp Image 2026-08-17 at 21.12.00.jpeg',
+        orderPosition: 2,
+        isActive: true,
+      },
+      {
+        slug: 'software-and-integrations',
+        name: 'Software and Integrations',
+        description: 'DCIM and Struxureware for Data Centre Overview, Schneider Electric reference designs, and cybersecurity.',
+        icon: 'Cpu',
+        imageUrl: '/images/WhatsApp Image 2026-08-17 at 21.12.02.jpeg',
+        orderPosition: 3,
+        isActive: true,
+      },
+    ]
+
+    for (const srv of serviceData) {
+      const existing = await db.select().from(services).where(eq(services.slug, srv.slug))
+      if (existing.length === 0) {
+        await db.insert(services).values(srv)
+      }
+    }
+
+    // Seed Industries
+    const industryData = [
+      {
+        slug: 'telecommunications',
+        name: 'Telecommunications',
+        description: 'Mission-critical power backup and Data Centre cooling for cellular networks and ISPs.',
+        icon: 'Radio',
+        orderPosition: 0,
+        isActive: true,
+      },
+      {
+        slug: 'banking-finance',
+        name: 'Banking & Financial Institutions',
+        description: 'Uninterrupted power systems and server room security for financial transaction processing.',
+        icon: 'Building2',
+        orderPosition: 1,
+        isActive: true,
+      },
+      {
+        slug: 'commercial-real-estate',
+        name: 'Commercial Real Estate & Malls',
+        description: 'Substation installations, solar microgrids, and smart facility energy management.',
+        icon: 'Landmark',
+        orderPosition: 2,
+        isActive: true,
+      },
+      {
+        slug: 'healthcare-hospitals',
+        name: 'Healthcare & Hospitals',
+        description: 'Zero-latency critical power backups for surgical suites, medical imaging, and ICU wards.',
+        icon: 'HeartPulse',
+        orderPosition: 3,
+        isActive: true,
+      },
+    ]
+
+    for (const ind of industryData) {
+      const existing = await db.select().from(industries).where(eq(industries.slug, ind.slug))
+      if (existing.length === 0) {
+        await db.insert(industries).values(ind)
+      }
+    }
+
+    // Seed Partners
+    const partnerData = [
+      {
+        name: 'Schneider Electric',
+        slug: 'schneider-electric',
+        logoUrl: '/images/schneider-electric-logo.png',
+        websiteUrl: 'https://www.se.com',
+        description: 'Global leader in energy management, automation, and Struxureware DCIM software solutions.',
+        category: 'Technology Partner',
+        isFeatured: true,
+        orderPosition: 0,
+        isActive: true,
+      },
+      {
+        name: 'APC by Schneider Electric',
+        slug: 'apc',
+        logoUrl: '/images/apc-logo.png',
+        websiteUrl: 'https://www.apc.com',
+        description: 'Uninterruptible power supply (UPS) systems, server racks, and critical power infrastructure.',
+        category: 'Manufacturer',
+        isFeatured: true,
+        orderPosition: 1,
+        isActive: true,
+      },
+      {
+        name: 'Huawei Solar',
+        slug: 'huawei-solar',
+        logoUrl: '/images/huawei-logo.png',
+        websiteUrl: 'https://solar.huawei.com',
+        description: 'Commercial & industrial string inverters and Smart String ESS battery systems.',
+        category: 'Solar Equipment',
+        isFeatured: true,
+        orderPosition: 2,
+        isActive: true,
+      },
+    ]
+
+    for (const partner of partnerData) {
+      const existing = await db.select().from(partners).where(eq(partners.slug, partner.slug))
+      if (existing.length === 0) {
+        await db.insert(partners).values(partner)
+      }
+    }
+
+    // Seed Resources
+    const resourceData = [
+      {
+        title: 'GlobalSpec Solutions Enterprise Profile 2026',
+        slug: 'globalspec-company-profile-2026',
+        category: 'Company Profile',
+        description: 'Full official company overview, engineering team credentials, and project portfolio.',
+        fileUrl: '/docs/Globalspec-Solutions-profile-2020.pdf',
+        fileSize: '4.2 MB',
+        isFeatured: true,
+        isActive: true,
+      },
+      {
+        title: 'Struxureware Data Centre Architecture Blueprint',
+        slug: 'struxureware-dcim-blueprint',
+        category: 'Datasheet',
+        description: 'Technical specifications for DCIM environmental and power monitoring implementations.',
+        fileUrl: '/docs/Struxureware-DCIM-Guide.pdf',
+        fileSize: '2.8 MB',
+        isFeatured: true,
+        isActive: true,
+      },
+    ]
+
+    for (const res of resourceData) {
+      const existing = await db.select().from(resources).where(eq(resources.slug, res.slug))
+      if (existing.length === 0) {
+        await db.insert(resources).values(res)
+      }
+    }
+
     // Seed Product Categories
     const categoryData = [
       {
@@ -227,13 +392,13 @@ export async function seedDatabase() {
       }
     }
 
-    // Seed Services
-    const serviceData = [
+    // Seed Additional Services
+    const additionalServices = [
       {
         slug: 'electrical-consultation-audit',
         name: 'Electrical Consultation & Energy Audits',
         description: 'Comprehensive electrical load calculations and energy efficiency audits.',
-        icon: '💡',
+        icon: 'Zap',
         orderPosition: 0,
         isActive: true,
       },
@@ -241,7 +406,7 @@ export async function seedDatabase() {
         slug: '24-7-emergency-maintenance',
         name: '24/7 Support & Preventive Maintenance',
         description: 'Round-the-clock technician response for critical power and UPS breakdowns.',
-        icon: '🛠️',
+        icon: 'Wrench',
         orderPosition: 1,
         isActive: true,
       },
@@ -255,7 +420,7 @@ export async function seedDatabase() {
       },
     ]
 
-    for (const srv of serviceData) {
+    for (const srv of additionalServices) {
       const existing = await db.select().from(services).where(eq(services.slug, srv.slug))
       if (existing.length === 0) {
         await db.insert(services).values(srv)

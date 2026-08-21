@@ -1,12 +1,12 @@
 import { AdminDashboardClient } from '@/components/admin-dashboard-client'
 import { db } from '@/lib/db'
-import { orders, contactMessages, products, productCategories } from '@/lib/db/schema'
+import { orders, contactMessages, products, productCategories, quoteRequests, industries, partners, resources } from '@/lib/db/schema'
 import { getSiteSettings } from '@/lib/db-data'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Global Spec Solutions',
-  description: 'Manage website content, products, categories, orders, and site settings.',
+  description: 'Manage website content, products, quotes, categories, orders, and site settings.',
 }
 
 export default async function AdminPage() {
@@ -14,6 +14,10 @@ export default async function AdminPage() {
   let messagesList: any[] = []
   let productsList: any[] = []
   let categoriesList: any[] = []
+  let quotesList: any[] = []
+  let industriesList: any[] = []
+  let partnersList: any[] = []
+  let resourcesList: any[] = []
   let settingsMap: Record<string, string> = {}
 
   try {
@@ -33,6 +37,22 @@ export default async function AdminPage() {
   } catch {}
 
   try {
+    quotesList = await db.select().from(quoteRequests).orderBy(quoteRequests.createdAt)
+  } catch {}
+
+  try {
+    industriesList = await db.select().from(industries)
+  } catch {}
+
+  try {
+    partnersList = await db.select().from(partners)
+  } catch {}
+
+  try {
+    resourcesList = await db.select().from(resources)
+  } catch {}
+
+  try {
     settingsMap = await getSiteSettings()
   } catch {}
 
@@ -41,6 +61,7 @@ export default async function AdminPage() {
     totalInquiries: messagesList.length,
     totalProducts: productsList.length,
     totalCategories: categoriesList.length,
+    totalQuotes: quotesList.length,
   }
 
   return (
@@ -48,8 +69,12 @@ export default async function AdminPage() {
       stats={stats}
       recentOrders={ordersList.reverse()}
       recentMessages={messagesList.reverse()}
+      recentQuotes={quotesList.reverse()}
       productsList={productsList}
       categoriesList={categoriesList}
+      industriesList={industriesList}
+      partnersList={partnersList}
+      resourcesList={resourcesList}
       settingsMap={settingsMap}
     />
   )
