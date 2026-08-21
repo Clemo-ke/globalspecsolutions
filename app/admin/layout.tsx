@@ -57,12 +57,10 @@ export default async function AdminLayout({
             await auth.api.signOut({ headers: await headers() })
             redirect('/sign-in')
           }}>
-            <button type="submit" className="w-full">
-              <Button variant="outline" className="w-full gap-2">
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
-            </button>
+            <Button type="submit" variant="outline" className="w-full gap-2">
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
           </form>
         </div>
       </aside>
