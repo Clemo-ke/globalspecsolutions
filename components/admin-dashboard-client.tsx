@@ -46,7 +46,32 @@ export function AdminDashboardClient({
   settingsMap,
 }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'messages' | 'settings'>('overview')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [settings, setSettings] = useState(settingsMap)
+  const [savingSettings, setSavingSettings] = useState(false)
+  const [saveNotice, setSaveNotice] = useState('')
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSavingSettings(true)
+    setSaveNotice('')
+
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      })
+      if (res.ok) {
+        setSaveNotice('Settings updated successfully!')
+        setTimeout(() => setSaveNotice(''), 3000)
+      }
+    } catch {
+      setSaveNotice('Failed to update settings.')
+    } finally {
+      setSavingSettings(false)
+    }
+  }
+
   // Modals state
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
