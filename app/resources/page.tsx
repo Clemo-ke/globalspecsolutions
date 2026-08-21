@@ -27,6 +27,7 @@ export default async function ResourcesPage() {
         </div>
 
         {/* Hero Header */}
+        <section className="bg-slate-950 text-white py-16 px-4 border-b border-slate-800">
           <div className="max-w-7xl mx-auto text-center space-y-4">
             <span className="text-xs font-extrabold uppercase tracking-widest text-primary block">Technical Documentation</span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight">Resources & Downloads</h1>
