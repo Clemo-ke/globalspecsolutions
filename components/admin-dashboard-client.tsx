@@ -46,6 +46,7 @@ export function AdminDashboardClient({
   settingsMap,
 }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'messages' | 'settings'>('overview')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settings, setSettings] = useState(settingsMap)
   const [savingSettings, setSavingSettings] = useState(false)
   const [saveNotice, setSaveNotice] = useState('')
