@@ -57,6 +57,70 @@ export default async function HomePage() {
           <SolutionsSection solutions={solutions as any} />
         </div>
 
+        {/* Interactive Solar & Power Savings Calculator */}
+        <section className="py-20 bg-slate-950 text-white border-y border-slate-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 inline-block">
+                Interactive Utility Tool
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Solar Energy & Power Cost Savings Calculator</h2>
+              <p className="text-slate-400 text-sm sm:text-base">
+                Estimate your monthly electricity cost reduction when switching to GlobalSpec commercial solar PV and hybrid battery energy storage.
+              </p>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-2xl">
+              <div className="lg:col-span-7 space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-xs font-extrabold uppercase text-slate-300">Average Monthly Electricity Bill (KES)</label>
+                    <span className="text-lg font-black text-primary">KES 250,000</span>
+                  </div>
+                  <input type="range" min="50000" max="2000000" step="50000" defaultValue="250000" className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary" />
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-xs font-extrabold uppercase text-slate-300">Facility Operating Hours / Day</label>
+                    <span className="text-sm font-bold text-slate-200">14 Hours</span>
+                  </div>
+                  <input type="range" min="8" max="24" defaultValue="14" className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Est. Solar Offset</span>
+                    <span className="text-xl font-black text-emerald-400">75%</span>
+                  </div>
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Monthly Savings</span>
+                    <span className="text-xl font-black text-primary">~KES 187,500</span>
+                  </div>
+                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Payback Period</span>
+                    <span className="text-xl font-black text-amber-400">3.2 Years</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 bg-gradient-to-br from-primary/20 via-slate-950 to-slate-950 border border-primary/30 p-6 rounded-2xl flex flex-col justify-between space-y-6">
+                <div className="space-y-3">
+                  <h3 className="text-xl font-black text-white">Ready to Cut Energy Overhead?</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Our certified energy engineers perform detailed load profile analysis, net-metering setup, and turnkey installation for commercial facilities across Kenya and East Africa.
+                  </p>
+                </div>
+                <Link href="/quote">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold py-3 rounded-xl shadow-lg gap-2 text-sm">
+                    Request Full Technical Energy Audit <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Services Section */}
         <ServicesShowcase services={services as any} />
 
