@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MainHeader } from '@/components/main-header'
 import { HeroCarousel } from '@/components/hero-carousel'
+import { MovingServicesBanner } from '@/components/moving-services-banner'
 import { ProductsSection } from '@/components/products-section'
 import { SolutionsSection } from '@/components/solutions-section'
 import { ClientsPortfolio } from '@/components/clients-portfolio'
@@ -42,6 +43,9 @@ export default async function HomePage() {
       <main className="flex-1">
         {/* Dynamic Hero Section */}
         <HeroCarousel slides={heroSlides as any} />
+
+        {/* Moving Services Slim Banner */}
+        <MovingServicesBanner />
 
         {/* E-commerce Callout Banner */}
         <section className="bg-gradient-to-r from-primary via-primary/95 to-slate-900 text-white py-6 px-4">
