@@ -47,29 +47,52 @@ export function AdminDashboardClient({
 }: AdminDashboardClientProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'messages' | 'settings'>('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [settings, setSettings] = useState(settingsMap)
-  const [savingSettings, setSavingSettings] = useState(false)
-  const [saveNotice, setSaveNotice] = useState('')
+  // Modals state
+  const [showProductModal, setShowProductModal] = useState(false)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showPartnerModal, setShowPartnerModal] = useState(false)
 
-  const handleSaveSettings = async (e: React.FormEvent) => {
+  // Creation forms state
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', stock: '10', description: '', categoryId: '', imageUrl: '' })
+  const [newCategory, setNewCategory] = useState({ name: '', description: '' })
+  const [newPartner, setNewPartner] = useState({ name: '', category: '', logoUrl: '' })
+  const [creating, setCreating] = useState(false)
+
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSavingSettings(true)
-    setSaveNotice('')
-
+    setCreating(true)
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ type: 'product', ...newProduct }),
       })
       if (res.ok) {
-        setSaveNotice('Settings updated successfully!')
-        setTimeout(() => setSaveNotice(''), 3000)
+        setShowProductModal(false)
+        setNewProduct({ name: '', price: '', stock: '10', description: '', categoryId: '', imageUrl: '' })
+        window.location.reload()
       }
-    } catch {
-      setSaveNotice('Failed to update settings.')
     } finally {
-      setSavingSettings(false)
+      setCreating(false)
+    }
+  }
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreating(true)
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'category', ...newCategory }),
+      })
+      if (res.ok) {
+        setShowCategoryModal(false)
+        setNewCategory({ name: '', description: '' })
+        window.location.reload()
+      }
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -182,7 +205,7 @@ export function AdminDashboardClient({
                   : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
               }`}
             >
-              <Settings className="w-4 h-4" /> Site Settings
+              <Settings className="w-4 h-4" /> Site Settings & Logo
             </button>
           </nav>
         </div>
@@ -200,19 +223,39 @@ export function AdminDashboardClient({
 
       {/* Main Admin Dashboard Content */}
       <main className="flex-1 p-6 md:p-10 space-y-8 overflow-y-auto">
-        {/* Header */}
+        {/* Header with Quick Create Buttons */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div>
             <h1 className="text-2xl font-black text-slate-100 capitalize">
               {activeTab === 'overview' && 'System Overview & Metrics'}
               {activeTab === 'orders' && 'Customer WhatsApp Orders'}
-              {activeTab === 'products' && 'Product Inventory & Shop Management'}
+              {activeTab === 'products' && 'Product Inventory & Catalog'}
               {activeTab === 'messages' && 'Customer Inquiry Submissions'}
-              {activeTab === 'settings' && 'Global Site Settings & WhatsApp Config'}
+              {activeTab === 'settings' && 'Global Site Settings, Logo & Colors'}
             </h1>
             <p className="text-xs text-slate-400">
-              Manage live products, custom settings, and monitor incoming customer orders.
+              Manage live products, categories, corporate identity, and customer orders.
             </p>
+          </div>
+
+          {/* Quick Create Buttons */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              onClick={() => setShowProductModal(true)}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-1.5 text-xs shadow-md"
+            >
+              <Plus className="w-3.5 h-3.5" /> Create Product
+            </Button>
+
+            <Button
+              onClick={() => setShowCategoryModal(true)}
+              size="sm"
+              variant="outline"
+              className="border-slate-700 hover:bg-slate-800 text-slate-200 gap-1.5 text-xs"
+            >
+              <Plus className="w-3.5 h-3.5" /> Create Category
+            </Button>
           </div>
         </div>
 
@@ -345,11 +388,16 @@ export function AdminDashboardClient({
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-lg text-slate-100">Products Catalog ({productsList.length})</h2>
-              <Link href="/shop" target="_blank">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 gap-1.5 text-xs">
-                  <ExternalLink className="w-3.5 h-3.5" /> View Public Shop
+              <div className="flex items-center gap-3">
+                <Button onClick={() => setShowProductModal(true)} size="sm" className="bg-primary hover:bg-primary/90 text-xs font-bold gap-1.5">
+                  <Plus className="w-3.5 h-3.5" /> Create Product
                 </Button>
-              </Link>
+                <Link href="/shop" target="_blank">
+                  <Button size="sm" variant="outline" className="border-slate-700 text-xs gap-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" /> View Public Shop
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -414,11 +462,11 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* Tab 5: Site Settings */}
+        {/* Tab 5: Site Settings, Logo & Colors */}
         {activeTab === 'settings' && (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-2xl space-y-6">
             <h2 className="font-bold text-lg text-slate-100 border-b border-slate-800 pb-3">
-              Site Settings & WhatsApp Integration
+              Global Site Branding & Settings
             </h2>
 
             {saveNotice && (
@@ -427,7 +475,38 @@ export function AdminDashboardClient({
               </div>
             )}
 
-            <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveSettings} className="space-y-5 text-xs">
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-4">
+                <h3 className="font-bold text-slate-200 uppercase tracking-wider text-[11px] text-primary">Brand Logo & Primary Color</h3>
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">Company Logo Image URL</label>
+                  <input
+                    type="text"
+                    value={settings.site_logo_url || ''}
+                    onChange={(e) => setSettings({ ...settings, site_logo_url: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-100"
+                    placeholder="https://example.com/logo.png"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">Primary Theme Accent Color</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={settings.primary_color || '#2563eb'}
+                      onChange={(e) => setSettings({ ...settings, primary_color: e.target.value })}
+                      className="w-10 h-10 rounded-lg border border-slate-800 bg-slate-900 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={settings.primary_color || '#2563eb'}
+                      onChange={(e) => setSettings({ ...settings, primary_color: e.target.value })}
+                      className="w-32 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-100 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-300 mb-1">WhatsApp Order Number</label>
                 <input
@@ -437,9 +516,6 @@ export function AdminDashboardClient({
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:ring-2 focus:ring-primary focus:outline-none"
                   placeholder="+254721113431"
                 />
-                <span className="text-[10px] text-slate-500 block mt-1">
-                  Orders submitted through shop checkout will open WhatsApp targeting this phone number.
-                </span>
               </div>
 
               <div>
@@ -448,7 +524,7 @@ export function AdminDashboardClient({
                   type="text"
                   value={settings.company_phone || ''}
                   onChange={(e) => setSettings({ ...settings, company_phone: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
                 />
               </div>
 
@@ -458,7 +534,7 @@ export function AdminDashboardClient({
                   type="email"
                   value={settings.company_email || ''}
                   onChange={(e) => setSettings({ ...settings, company_email: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
                 />
               </div>
 
@@ -468,7 +544,7 @@ export function AdminDashboardClient({
                   rows={2}
                   value={settings.company_address || ''}
                   onChange={(e) => setSettings({ ...settings, company_address: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
                 />
               </div>
 
@@ -483,6 +559,135 @@ export function AdminDashboardClient({
           </div>
         )}
       </main>
+
+      {/* Modal: Create Product */}
+      {showProductModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-lg text-slate-100">Create New Product</h3>
+              <button onClick={() => setShowProductModal(false)} className="text-slate-400 hover:text-slate-200">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateProduct} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Product Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="e.g. Cisco Catalyst 9300 Switch"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">Price (KES) *</label>
+                  <input
+                    type="number"
+                    required
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                    placeholder="150000"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-300 mb-1">Initial Stock</label>
+                  <input
+                    type="number"
+                    value={newProduct.stock}
+                    onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Image URL</label>
+                <input
+                  type="text"
+                  value={newProduct.imageUrl}
+                  onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="https://images.unsplash.com/..."
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Description</label>
+                <textarea
+                  rows={3}
+                  value={newProduct.description}
+                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="High-performance enterprise networking..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" onClick={() => setShowProductModal(false)} className="border-slate-800 text-xs">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={creating} className="bg-primary hover:bg-primary/90 font-bold text-xs">
+                  {creating ? 'Saving...' : 'Create Product'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Create Category */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-lg text-slate-100">Create New Category</h3>
+              <button onClick={() => setShowCategoryModal(false)} className="text-slate-400 hover:text-slate-200">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCategory} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                  placeholder="e.g. Telecommunications"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Description</label>
+                <textarea
+                  rows={2}
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-100"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" onClick={() => setShowCategoryModal(false)} className="border-slate-800 text-xs">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={creating} className="bg-primary hover:bg-primary/90 font-bold text-xs">
+                  {creating ? 'Saving...' : 'Create Category'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
