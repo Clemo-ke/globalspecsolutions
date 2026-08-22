@@ -2,19 +2,17 @@ import { seedDatabase } from '@/lib/seed'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  // Only allow in development
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 })
-  }
-
   try {
+    console.log('[SEED API] Starting seedDatabase()...')
     await seedDatabase()
+    console.log('[SEED API] Finished seedDatabase() successfully!')
     return NextResponse.json({ success: true, message: 'Database seeded successfully' })
-  } catch (error) {
-    console.error('Seed error:', error)
+  } catch (error: any) {
+    console.error('[SEED API] Error:', error)
     return NextResponse.json(
-      { error: 'Failed to seed database', details: String(error) },
+      { error: 'Failed to seed database', details: String(error?.message || error) },
       { status: 500 }
     )
   }
 }
+

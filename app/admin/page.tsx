@@ -1,12 +1,23 @@
 import { AdminDashboardClient } from '@/components/admin-dashboard-client'
 import { db } from '@/lib/db'
-import { orders, contactMessages, products, productCategories, quoteRequests, industries, partners, resources, services } from '@/lib/db/schema'
+import {
+  orders,
+  contactMessages,
+  products,
+  productCategories,
+  quoteRequests,
+  industries,
+  partners,
+  resources,
+  services,
+  solutions,
+} from '@/lib/db/schema'
 import { getSiteSettings } from '@/lib/db-data'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Global Spec Solutions',
-  description: 'Manage website content, products, quotes, categories, orders, and site settings.',
+  description: 'Manage website content, products, quotes, categories, orders, solutions, and site settings.',
 }
 
 export default async function AdminPage() {
@@ -18,6 +29,8 @@ export default async function AdminPage() {
   let industriesList: any[] = []
   let partnersList: any[] = []
   let resourcesList: any[] = []
+  let servicesList: any[] = []
+  let solutionsList: any[] = []
   let settingsMap: Record<string, string> = {}
 
   try {
@@ -48,10 +61,12 @@ export default async function AdminPage() {
     partnersList = await db.select().from(partners)
   } catch {}
 
-  let servicesList: any[] = []
-
   try {
     servicesList = await db.select().from(services)
+  } catch {}
+
+  try {
+    solutionsList = await db.select().from(solutions).orderBy(solutions.orderPosition)
   } catch {}
 
   try {
@@ -68,6 +83,7 @@ export default async function AdminPage() {
     totalProducts: productsList.length,
     totalCategories: categoriesList.length,
     totalQuotes: quotesList.length,
+    totalSolutions: solutionsList.length,
   }
 
   return (
@@ -79,6 +95,7 @@ export default async function AdminPage() {
       productsList={productsList}
       categoriesList={categoriesList}
       servicesList={servicesList}
+      solutionsList={solutionsList}
       industriesList={industriesList}
       partnersList={partnersList}
       resourcesList={resourcesList}

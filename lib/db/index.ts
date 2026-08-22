@@ -4,6 +4,14 @@ import * as schema from './schema'
 
 const connectionUri = process.env.DATABASE_URL || 'mysql://root:password@127.0.0.1:3306/globalspec'
 
-export const pool = mysql.createPool(connectionUri)
-export const db = drizzle(pool, { schema, mode: 'default' })
+const globalForDb = globalThis as unknown as {
+  pool: mysql.Pool | undefined
+}
 
+export const pool =
+  globalForDb.pool ??
+  mysql.createPool(connectionUri)
+
+if (process.env.NODE_ENV !== 'production') globalForDb.pool = pool
+
+export const db = drizzle(pool, { schema, mode: 'default' })

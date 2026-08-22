@@ -1,10 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { MainHeader } from '@/components/main-header'
 import { getPartners, getSiteSettings } from '@/lib/db-data'
-import { ShieldCheck, ExternalLink, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ExternalLink, ArrowRight, ShieldCheck } from 'lucide-react'
 
 export default async function PartnersPage() {
   const [partnersList, siteSettings] = await Promise.all([getPartners(), getSiteSettings()])
@@ -28,31 +26,56 @@ export default async function PartnersPage() {
         </div>
 
         {/* Hero Header */}
-        <section className="bg-slate-950 text-white py-16 px-4 border-b border-slate-800">
-          <div className="max-w-7xl mx-auto text-center space-y-4">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-primary block">Technology Ecosystem</span>
+        <section className="bg-slate-950 text-white py-16 px-4 border-b border-slate-800 relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-0" />
+          <div className="max-w-7xl mx-auto text-center space-y-4 relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-primary/20 text-primary border border-primary/30">
+              <ShieldCheck className="w-3.5 h-3.5" /> Technology Ecosystem
+            </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight">Our OEM Partners & Manufacturers</h1>
             <p className="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              GlobalSpec Solutions collaborates with world-leading electrical equipment manufacturers and software creators to deliver Tier-1 reliability.
+              GlobalSpec Solutions collaborates with world-leading electrical equipment manufacturers, renewable energy pioneers, and software creators to deliver Tier-1 enterprise reliability.
             </p>
           </div>
         </section>
 
+        {/* Partners Grid */}
         <section className="py-16 max-w-7xl mx-auto px-4 md:px-6 w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {partnersList.map((partner) => (
               <div
                 key={partner.id}
-                className="bg-card border border-border/80 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all flex flex-col justify-between"
+                className="group bg-card border border-border/80 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-4">
-                  <div className="p-4 bg-white rounded-xl flex items-center justify-center h-20 border border-slate-100">
-                    <span className="font-extrabold text-xl text-slate-900">{partner.name}</span>
+                  {/* Logo Container */}
+                  <div className="p-4 bg-white rounded-xl flex items-center justify-center h-24 border border-slate-100 shadow-inner overflow-hidden relative">
+                    {partner.logoUrl ? (
+                      <img
+                        src={partner.logoUrl}
+                        alt={partner.name}
+                        className="max-h-14 max-w-[180px] w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <span className="font-extrabold text-xl text-slate-900 tracking-tight">{partner.name}</span>
+                    )}
                   </div>
-                  <div className="inline-block px-2.5 py-1 rounded-md bg-primary/10 text-primary text-xs font-bold">
-                    {partner.category || 'Technology Partner'}
+
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="inline-block px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                      {partner.category || 'Technology Partner'}
+                    </span>
+                    {partner.isFeatured && (
+                      <span className="text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                        ⭐ Official OEM
+                      </span>
+                    )}
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{partner.description}</p>
+
+                  <h3 className="font-bold text-lg text-foreground">{partner.name}</h3>
+                  {partner.description && (
+                    <p className="text-muted-foreground text-xs leading-relaxed">{partner.description}</p>
+                  )}
                 </div>
 
                 {partner.websiteUrl && (
@@ -61,9 +84,9 @@ export default async function PartnersPage() {
                       href={partner.websiteUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-semibold text-primary inline-flex items-center gap-1 hover:underline"
+                      className="text-xs font-semibold text-primary inline-flex items-center gap-1.5 hover:underline"
                     >
-                      Official Portal <ExternalLink className="w-3.5 h-3.5" />
+                      Visit Official Portal <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 )}
