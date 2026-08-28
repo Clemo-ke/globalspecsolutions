@@ -1,4 +1,6 @@
 ---
 deployment:
   tasks:
-    - /bin/echo "Deploying globalspecsolutions"
+    - export DEPLOYPATH=/home/$USER/public_html
+    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R .next $DEPLOYPATH/ 2>/dev/null || true
