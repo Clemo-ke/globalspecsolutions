@@ -676,7 +676,7 @@ export function AdminDashboardClient({
             {/* Order status breakdown */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {['New', 'Contacted', 'Confirmed', 'Processing', 'Completed', 'Cancelled'].map((status) => {
-                const count = localOrders.filter((o) => o.status === status).length
+                const count = localOrders.filter((o: any) => o.status === status).length
                 return (
                   <div key={status} className={`p-3 rounded-xl border text-center ${orderStatusColor(status)}`}>
                     <div className="text-lg font-black">{count}</div>
@@ -698,7 +698,7 @@ export function AdminDashboardClient({
                     <tr>{['Order #', 'Customer', 'Phone', 'Amount', 'Status', 'Date'].map((h) => <th key={h} className="p-3">{h}</th>)}</tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/60">
-                    {localOrders.slice(0, 6).map((ord) => (
+                    {localOrders.slice(0, 6).map((ord: any) => (
                       <tr key={ord.id} className="hover:bg-slate-800/30">
                         <td className="p-3 font-bold text-primary">{ord.orderNumber}</td>
                         <td className="p-3 font-medium text-slate-200">{ord.customerName}</td>
@@ -719,7 +719,7 @@ export function AdminDashboardClient({
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
               <h2 className="font-bold text-slate-100 text-sm flex items-center gap-2"><Star className="w-4 h-4 text-amber-400" /> Featured Products</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {localProducts.filter((p) => p.isFeatured).slice(0, 6).map((p) => (
+                {localProducts.filter((p: any) => p.isFeatured).slice(0, 6).map((p: any) => (
                   <div key={p.id} className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center gap-3">
                     {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />}
                     <div className="min-w-0">
@@ -744,7 +744,7 @@ export function AdminDashboardClient({
                   onClick={() => setOrderStatusFilter(s)}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all ${orderStatusFilter === s ? 'bg-primary text-primary-foreground border-primary' : 'border-slate-700 text-slate-400 hover:border-slate-500'}`}
                 >
-                  {s} {s !== 'All' && `(${localOrders.filter((o) => o.status === s).length})`}
+                  {s} {s !== 'All' && `(${localOrders.filter((o: any) => o.status === s).length})`}
                 </button>
               ))}
             </div>
@@ -756,7 +756,7 @@ export function AdminDashboardClient({
                     <tr>{['Order #', 'Customer', 'Phone', 'Email', 'Location', 'Total', 'Status', 'Actions'].map((h) => <th key={h} className="p-3 whitespace-nowrap">{h}</th>)}</tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
-                    {filteredOrders.map((ord) => (
+                    {filteredOrders.map((ord: any) => (
                       <tr key={ord.id} className="hover:bg-slate-800/30">
                         <td className="p-3 font-bold text-primary whitespace-nowrap">{ord.orderNumber}</td>
                         <td className="p-3 font-medium text-slate-200 whitespace-nowrap">{ord.customerName}</td>
@@ -827,8 +827,8 @@ export function AdminDashboardClient({
                     <tr>{['Image', 'SKU', 'Product Name', 'Category', 'Price', 'Stock', 'Featured', 'Actions'].map((h) => <th key={h} className="p-3 whitespace-nowrap">{h}</th>)}</tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800/50">
-                    {filteredProducts.map((prod) => {
-                      const cat = localCategories.find((c) => c.id === prod.categoryId)
+                    {filteredProducts.map((prod: any) => {
+                      const cat = localCategories.find((c: any) => c.id === prod.categoryId)
                       return (
                         <tr key={prod.id} className="hover:bg-slate-800/30">
                           <td className="p-3">
@@ -905,8 +905,8 @@ export function AdminDashboardClient({
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {localCategories.map((cat) => {
-                const prodCount = localProducts.filter((p) => p.categoryId === cat.id).length
+              {localCategories.map((cat: any) => {
+                const prodCount = localProducts.filter((p: any) => p.categoryId === cat.id).length
                 return (
                   <div key={cat.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
@@ -970,7 +970,7 @@ export function AdminDashboardClient({
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {localSolutions.map((sol) => (
+              {localSolutions.map((sol: any) => (
                 <div key={sol.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
                   <div className="space-y-3">
                     {sol.imageUrl && (
@@ -1026,7 +1026,7 @@ export function AdminDashboardClient({
               </Button>
             </div>
             <div className="grid grid-cols-1 gap-4">
-              {localHeroSlides.map((slide) => (
+              {localHeroSlides.map((slide: any) => (
                 <div key={slide.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                   {/* Image Preview Box */}
                   <div className="w-full md:w-64 h-36 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800 shrink-0">
@@ -1099,7 +1099,7 @@ export function AdminDashboardClient({
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {localPartners.map((ptn) => (
+              {localPartners.map((ptn: any) => (
                 <div key={ptn.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
                   <div className="space-y-3">
                     {/* Logo Image Preview Box */}
@@ -1150,7 +1150,7 @@ export function AdminDashboardClient({
           <div className="space-y-4">
             {localMessages.length > 0 ? (
               <div className="space-y-3">
-                {localMessages.map((msg) => (
+                {localMessages.map((msg: any) => (
                   <div key={msg.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -1288,7 +1288,7 @@ export function AdminDashboardClient({
                 <Field label="Category *">
                   <select required value={newProduct.categoryId} onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })} className={selectCls}>
                     <option value="">Select category</option>
-                    {localCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {localCategories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </Field>
               </div>
@@ -1350,7 +1350,7 @@ export function AdminDashboardClient({
                 </Field>
                 <Field label="Category">
                   <select value={editProduct.categoryId || ''} onChange={(e) => setEditProduct({ ...editProduct, categoryId: e.target.value })} className={selectCls}>
-                    {localCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {localCategories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </Field>
               </div>
