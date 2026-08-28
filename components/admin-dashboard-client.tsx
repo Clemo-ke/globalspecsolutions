@@ -251,7 +251,7 @@ export function AdminDashboardClient({
         body: JSON.stringify(editProduct),
       })
       if (res.ok) {
-        setLocalProducts((prev) => prev.map((p) => (p.id === editProduct.id ? { ...p, ...editProduct } : p)))
+        setLocalProducts((prev: any[]) => prev.map((p: any) => (p.id === editProduct.id ? { ...p, ...editProduct } : p)))
         setShowEditProductModal(false)
         flash('✅ Product updated successfully')
       } else {
@@ -301,7 +301,7 @@ export function AdminDashboardClient({
         body: JSON.stringify(editCategory),
       })
       if (res.ok) {
-        setLocalCategories((prev) => prev.map((c) => (c.id === editCategory.id ? { ...c, ...editCategory } : c)))
+        setLocalCategories((prev: any[]) => prev.map((c: any) => (c.id === editCategory.id ? { ...c, ...editCategory } : c)))
         setShowEditCategoryModal(false)
         flash('✅ Category updated')
       } else {
@@ -370,7 +370,7 @@ export function AdminDashboardClient({
         body: JSON.stringify(editSolution),
       })
       if (res.ok) {
-        setLocalSolutions((prev) => prev.map((s) => (s.id === editSolution.id ? { ...s, ...editSolution } : s)))
+        setLocalSolutions((prev: any[]) => prev.map((s: any) => (s.id === editSolution.id ? { ...s, ...editSolution } : s)))
         setShowEditSolutionModal(false)
         flash('✅ Solution updated')
       } else {
@@ -418,7 +418,7 @@ export function AdminDashboardClient({
         body: JSON.stringify(editPartner),
       })
       if (res.ok) {
-        setLocalPartners((prev) => prev.map((p) => (p.id === editPartner.id ? { ...p, ...editPartner } : p)))
+        setLocalPartners((prev: any[]) => prev.map((p: any) => (p.id === editPartner.id ? { ...p, ...editPartner } : p)))
         setShowEditPartnerModal(false)
         flash('✅ Partner updated')
       } else {
@@ -468,7 +468,7 @@ export function AdminDashboardClient({
         body: JSON.stringify(editHeroSlide),
       })
       if (res.ok) {
-        setLocalHeroSlides((prev) => prev.map((s) => (s.id === editHeroSlide.id ? { ...s, ...editHeroSlide } : s)))
+        setLocalHeroSlides((prev: any[]) => prev.map((s: any) => (s.id === editHeroSlide.id ? { ...s, ...editHeroSlide } : s)))
         setShowEditHeroModal(false)
         flash('✅ Hero slide updated')
       } else {
@@ -494,15 +494,15 @@ export function AdminDashboardClient({
       const res = await fetch(url, { method: 'DELETE' })
       if (res.ok) {
         if (showDeleteConfirm.type === 'product')
-          setLocalProducts((prev) => prev.filter((p) => p.id !== showDeleteConfirm.id))
+          setLocalProducts((prev: any[]) => prev.filter((p: any) => p.id !== showDeleteConfirm.id))
         if (showDeleteConfirm.type === 'category')
-          setLocalCategories((prev) => prev.filter((c) => c.id !== showDeleteConfirm.id))
+          setLocalCategories((prev: any[]) => prev.filter((c: any) => c.id !== showDeleteConfirm.id))
         if (showDeleteConfirm.type === 'solution')
-          setLocalSolutions((prev) => prev.filter((s) => s.id !== showDeleteConfirm.id))
+          setLocalSolutions((prev: any[]) => prev.filter((s: any) => s.id !== showDeleteConfirm.id))
         if (showDeleteConfirm.type === 'partner')
-          setLocalPartners((prev) => prev.filter((p) => p.id !== showDeleteConfirm.id))
+          setLocalPartners((prev: any[]) => prev.filter((p: any) => p.id !== showDeleteConfirm.id))
         if (showDeleteConfirm.type === 'hero_slide')
-          setLocalHeroSlides((prev) => prev.filter((h) => h.id !== showDeleteConfirm.id))
+          setLocalHeroSlides((prev: any[]) => prev.filter((h: any) => h.id !== showDeleteConfirm.id))
         flash(`✅ ${showDeleteConfirm.name} deleted`)
       } else {
         flash('❌ Delete failed')
@@ -524,7 +524,7 @@ export function AdminDashboardClient({
         body: JSON.stringify({ status: newStatus }),
       })
       if (res.ok) {
-        setLocalOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)))
+        setLocalOrders((prev: any[]) => prev.map((o: any) => (o.id === orderId ? { ...o, status: newStatus } : o)))
         flash(`✅ Order status updated to ${newStatus}`)
       }
     } catch {
@@ -533,19 +533,19 @@ export function AdminDashboardClient({
   }
 
   // ─── Filtered data ─────────────────────────────────────────────────────────
-  const filteredProducts = localProducts.filter((p) => {
+  const filteredProducts = localProducts.filter((p: any) => {
     const s = productSearch.toLowerCase()
     return !s || p.name?.toLowerCase().includes(s) || p.sku?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s)
   })
 
   const filteredOrders = orderStatusFilter === 'All'
     ? localOrders
-    : localOrders.filter((o) => o.status === orderStatusFilter)
+    : localOrders.filter((o: any) => o.status === orderStatusFilter)
 
   // ─── Revenue calc ──────────────────────────────────────────────────────────
   const totalRevenue = localOrders
-    .filter((o) => o.status !== 'Cancelled')
-    .reduce((sum, o) => sum + parseFloat(o.total || '0'), 0)
+    .filter((o: any) => o.status !== 'Cancelled')
+    .reduce((sum: number, o: any) => sum + parseFloat(o.total || '0'), 0)
 
   // ─── NavLink helper ────────────────────────────────────────────────────────
   const NavBtn = ({ tab, icon, label, count }: { tab: Tab; icon: React.ReactNode; label: string; count?: number }) => (
