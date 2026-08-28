@@ -11,7 +11,7 @@ import {
   teamMembers,
   services,
 } from '@/lib/db/schema'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
@@ -33,9 +33,9 @@ export async function getHeroSlides() {
 
 export async function createHeroSlide(data: typeof heroSlides.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(heroSlides).values(data).returning()
+  await db.insert(heroSlides).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateHeroSlide(
@@ -43,13 +43,12 @@ export async function updateHeroSlide(
   data: Partial<typeof heroSlides.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(heroSlides)
     .set(data)
     .where(eq(heroSlides.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteHeroSlide(id: number) {
@@ -71,9 +70,9 @@ export async function createProductCategory(
   data: typeof productCategories.$inferInsert
 ) {
   await verifyAdmin()
-  const result = await db.insert(productCategories).values(data).returning()
+  await db.insert(productCategories).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateProductCategory(
@@ -81,13 +80,12 @@ export async function updateProductCategory(
   data: Partial<typeof productCategories.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(productCategories)
     .set(data)
     .where(eq(productCategories.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteProductCategory(id: number) {
@@ -120,9 +118,9 @@ export async function getProducts(categoryId?: number) {
 
 export async function createProduct(data: typeof products.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(products).values(data).returning()
+  await db.insert(products).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateProduct(
@@ -130,13 +128,12 @@ export async function updateProduct(
   data: Partial<typeof products.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(products)
     .set(data)
     .where(eq(products.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteProduct(id: number) {
@@ -156,9 +153,9 @@ export async function getSolutions() {
 
 export async function createSolution(data: typeof solutions.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(solutions).values(data).returning()
+  await db.insert(solutions).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateSolution(
@@ -166,13 +163,12 @@ export async function updateSolution(
   data: Partial<typeof solutions.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(solutions)
     .set(data)
     .where(eq(solutions.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteSolution(id: number) {
@@ -192,9 +188,9 @@ export async function getClients() {
 
 export async function createClient(data: typeof clients.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(clients).values(data).returning()
+  await db.insert(clients).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateClient(
@@ -202,13 +198,12 @@ export async function updateClient(
   data: Partial<typeof clients.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(clients)
     .set(data)
     .where(eq(clients.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteClient(id: number) {
@@ -228,9 +223,9 @@ export async function getTeamMembers() {
 
 export async function createTeamMember(data: typeof teamMembers.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(teamMembers).values(data).returning()
+  await db.insert(teamMembers).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateTeamMember(
@@ -238,13 +233,12 @@ export async function updateTeamMember(
   data: Partial<typeof teamMembers.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(teamMembers)
     .set(data)
     .where(eq(teamMembers.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteTeamMember(id: number) {
@@ -264,9 +258,9 @@ export async function getServices() {
 
 export async function createService(data: typeof services.$inferInsert) {
   await verifyAdmin()
-  const result = await db.insert(services).values(data).returning()
+  await db.insert(services).values(data)
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function updateService(
@@ -274,13 +268,12 @@ export async function updateService(
   data: Partial<typeof services.$inferInsert>
 ) {
   await verifyAdmin()
-  const result = await db
+  await db
     .update(services)
     .set(data)
     .where(eq(services.id, id))
-    .returning()
   revalidatePath('/')
-  return result[0]
+  return { success: true }
 }
 
 export async function deleteService(id: number) {

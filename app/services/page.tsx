@@ -62,7 +62,7 @@ export default async function ServicesPage() {
               >
                 <div className="space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    {getServiceIcon(service.icon)}
+                    {getServiceIcon(service.icon ?? undefined)}
                   </div>
                   <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">{service.name}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed font-normal">{service.description}</p>

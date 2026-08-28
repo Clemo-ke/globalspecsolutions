@@ -165,12 +165,14 @@ export function AdminDashboardClient({
   const [newService, setNewService] = useState(emptyService)
   const [newSolution, setNewSolution] = useState(emptySolution)
   const [newPartner, setNewPartner] = useState(emptyPartner)
+  const [newHeroSlide, setNewHeroSlide] = useState(emptyHeroSlide)
 
   // ── Edit forms ─────────────────────────────────────────────────────────────
   const [editProduct, setEditProduct] = useState<any>(null)
   const [editCategory, setEditCategory] = useState<any>(null)
   const [editSolution, setEditSolution] = useState<any>(null)
   const [editPartner, setEditPartner] = useState<any>(null)
+  const [editHeroSlide, setEditHeroSlide] = useState<any>(null)
 
 
 

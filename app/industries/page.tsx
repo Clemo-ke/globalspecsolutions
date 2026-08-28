@@ -62,7 +62,7 @@ export default async function IndustriesPage() {
               >
                 <div className="space-y-4">
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    {getIndustryIcon(ind.icon)}
+                    {getIndustryIcon(ind.icon ?? undefined)}
                   </div>
                   <h3 className="text-2xl font-extrabold tracking-tight">{ind.name}</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{ind.description}</p>

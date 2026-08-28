@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { products, productCategories, services, partners } from '@/lib/db/schema'
+import { products, productCategories, services, partners, solutions } from '@/lib/db/schema'
 import { headers } from 'next/headers'
 
 export async function GET() {

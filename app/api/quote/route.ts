@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       status: 'New',
     })
 
-    const quoteId = (inserted as any).insertId || inserted.id
+    const quoteId = (inserted as any).insertId || (inserted as any).id || 1
 
     if (items && Array.isArray(items) && items.length > 0) {
       for (const item of items) {
