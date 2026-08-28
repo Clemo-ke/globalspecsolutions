@@ -2,5 +2,11 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/$USER/public_html
-    - /bin/cp -R * $DEPLOYPATH
-    - /bin/cp -R .next $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/echo "Deploying globalspecsolutions..."
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R .next $DEPLOYPATH/
+    - /bin/cp -R public $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp package.json $DEPLOYPATH/
+    - /bin/cp package-lock.json $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp pnpm-lock.yaml $DEPLOYPATH/ 2>/dev/null || true
+    - /bin/cp next.config.* $DEPLOYPATH/ 2>/dev/null || true
