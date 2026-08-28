@@ -2,22 +2,17 @@ import React from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MainHeader } from '@/components/main-header'
-import { db } from '@/lib/db'
-import { services } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
-import { getSiteSettings } from '@/lib/db-data'
+import { getServiceBySlug, getSiteSettings } from '@/lib/db-data'
 import { ArrowLeft, ShieldCheck, CheckCircle2, Phone, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const [serviceList, siteSettings] = await Promise.all([
-    db.select().from(services).where(eq(services.slug, slug)).limit(1),
+  const [service, siteSettings] = await Promise.all([
+    getServiceBySlug(slug),
     getSiteSettings(),
   ])
-
-  const service = serviceList[0]
 
   if (!service) {
     notFound()
