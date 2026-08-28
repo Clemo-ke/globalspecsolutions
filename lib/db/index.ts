@@ -16,15 +16,12 @@ function createPool(): mysql.Pool {
     database: process.env.DB_NAME || 'globalspec',
     waitForConnections: true,
     connectionLimit: 15,
+    maxIdle: 5,
+    idleTimeout: 3000,
     queueLimit: 0,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 10000,
   })
 }
 
-// In development, cache the pool on globalThis so Turbopack hot-reloads
-// don't create a new pool on every module re-evaluation.
-// In production a fresh pool is fine because modules only load once.
 export const pool: mysql.Pool =
   process.env.NODE_ENV === 'production'
     ? createPool()
