@@ -11,71 +11,45 @@ import {
   resources,
   services,
   solutions,
+  heroSlides,
 } from '@/lib/db/schema'
 import { getSiteSettings } from '@/lib/db-data'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Global Spec Solutions',
-  description: 'Manage website content, products, quotes, categories, orders, solutions, and site settings.',
+  description: 'Manage website content, products, quotes, categories, orders, solutions, hero carousel, and site settings.',
 }
 
 export default async function AdminPage() {
-  let ordersList: any[] = []
-  let messagesList: any[] = []
-  let productsList: any[] = []
-  let categoriesList: any[] = []
-  let quotesList: any[] = []
-  let industriesList: any[] = []
-  let partnersList: any[] = []
-  let resourcesList: any[] = []
-  let servicesList: any[] = []
-  let solutionsList: any[] = []
-  let settingsMap: Record<string, string> = {}
-
-  try {
-    ordersList = await db.select().from(orders).orderBy(orders.createdAt)
-  } catch {}
-
-  try {
-    messagesList = await db.select().from(contactMessages).orderBy(contactMessages.createdAt)
-  } catch {}
-
-  try {
-    productsList = await db.select().from(products)
-  } catch {}
-
-  try {
-    categoriesList = await db.select().from(productCategories)
-  } catch {}
-
-  try {
-    quotesList = await db.select().from(quoteRequests).orderBy(quoteRequests.createdAt)
-  } catch {}
-
-  try {
-    industriesList = await db.select().from(industries)
-  } catch {}
-
-  try {
-    partnersList = await db.select().from(partners)
-  } catch {}
-
-  try {
-    servicesList = await db.select().from(services)
-  } catch {}
-
-  try {
-    solutionsList = await db.select().from(solutions).orderBy(solutions.orderPosition)
-  } catch {}
-
-  try {
-    resourcesList = await db.select().from(resources)
-  } catch {}
-
-  try {
-    settingsMap = await getSiteSettings()
-  } catch {}
+  // Run all DB queries in parallel — avoids sequential connection exhaustion
+  const [
+    ordersList,
+    messagesList,
+    productsList,
+    categoriesList,
+    quotesList,
+    industriesList,
+    partnersList,
+    servicesList,
+    solutionsList,
+    resourcesList,
+    heroSlidesList,
+    settingsMap,
+  ] = await Promise.all([
+    db.select().from(orders).orderBy(orders.createdAt).catch(() => [] as any[]),
+    db.select().from(contactMessages).orderBy(contactMessages.createdAt).catch(() => [] as any[]),
+    db.select().from(products).catch(() => [] as any[]),
+    db.select().from(productCategories).catch(() => [] as any[]),
+    db.select().from(quoteRequests).orderBy(quoteRequests.createdAt).catch(() => [] as any[]),
+    db.select().from(industries).catch(() => [] as any[]),
+    db.select().from(partners).catch(() => [] as any[]),
+    db.select().from(services).catch(() => [] as any[]),
+    db.select().from(solutions).orderBy(solutions.orderPosition).catch(() => [] as any[]),
+    db.select().from(resources).catch(() => [] as any[]),
+    db.select().from(heroSlides).orderBy(heroSlides.orderPosition).catch(() => [] as any[]),
+    getSiteSettings().catch(() => ({} as Record<string, string>)),
+  ])
 
   const stats = {
     totalOrders: ordersList.length,
@@ -84,14 +58,15 @@ export default async function AdminPage() {
     totalCategories: categoriesList.length,
     totalQuotes: quotesList.length,
     totalSolutions: solutionsList.length,
+    totalHeroSlides: heroSlidesList.length,
   }
 
   return (
     <AdminDashboardClient
       stats={stats}
-      recentOrders={ordersList.reverse()}
-      recentMessages={messagesList.reverse()}
-      recentQuotes={quotesList.reverse()}
+      recentOrders={[...ordersList].reverse()}
+      recentMessages={[...messagesList].reverse()}
+      recentQuotes={[...quotesList].reverse()}
       productsList={productsList}
       categoriesList={categoriesList}
       servicesList={servicesList}
@@ -99,6 +74,7 @@ export default async function AdminPage() {
       industriesList={industriesList}
       partnersList={partnersList}
       resourcesList={resourcesList}
+      heroSlidesList={heroSlidesList}
       settingsMap={settingsMap}
     />
   )

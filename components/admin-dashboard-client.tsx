@@ -29,6 +29,7 @@ import {
   Star,
   Zap,
   Lightbulb,
+  Images,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -41,6 +42,7 @@ interface AdminDashboardClientProps {
     totalCategories: number
     totalQuotes?: number
     totalSolutions?: number
+    totalHeroSlides?: number
   }
   recentOrders: any[]
   recentMessages: any[]
@@ -52,6 +54,7 @@ interface AdminDashboardClientProps {
   partnersList?: any[]
   resourcesList?: any[]
   industriesList?: any[]
+  heroSlidesList?: any[]
   settingsMap: Record<string, string>
 }
 
@@ -113,9 +116,10 @@ export function AdminDashboardClient({
   partnersList = [],
   resourcesList = [],
   industriesList = [],
+  heroSlidesList = [],
   settingsMap,
 }: AdminDashboardClientProps) {
-  type Tab = 'overview' | 'orders' | 'products' | 'categories' | 'services' | 'solutions' | 'partners' | 'messages' | 'quotes' | 'settings'
+  type Tab = 'overview' | 'orders' | 'products' | 'categories' | 'services' | 'solutions' | 'hero' | 'partners' | 'messages' | 'quotes' | 'settings'
   const [activeTab, setActiveTab] = useState<Tab>('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settings, setSettings] = useState(settingsMap)
@@ -129,6 +133,7 @@ export function AdminDashboardClient({
   const [localMessages, setLocalMessages] = useState<any[]>(recentMessages)
   const [localPartners, setLocalPartners] = useState<any[]>(partnersList)
   const [localSolutions, setLocalSolutions] = useState<any[]>(solutionsList)
+  const [localHeroSlides, setLocalHeroSlides] = useState<any[]>(heroSlidesList)
 
   // ── Modal visibility ───────────────────────────────────────────────────────
   const [showProductModal, setShowProductModal] = useState(false)
@@ -136,10 +141,12 @@ export function AdminDashboardClient({
   const [showServiceModal, setShowServiceModal] = useState(false)
   const [showSolutionModal, setShowSolutionModal] = useState(false)
   const [showPartnerModal, setShowPartnerModal] = useState(false)
+  const [showHeroModal, setShowHeroModal] = useState(false)
   const [showEditProductModal, setShowEditProductModal] = useState(false)
   const [showEditCategoryModal, setShowEditCategoryModal] = useState(false)
   const [showEditSolutionModal, setShowEditSolutionModal] = useState(false)
   const [showEditPartnerModal, setShowEditPartnerModal] = useState(false)
+  const [showEditHeroModal, setShowEditHeroModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ type: string; id: number; name: string } | null>(null)
   const [creating, setCreating] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -151,6 +158,7 @@ export function AdminDashboardClient({
   const emptyService = { name: '', icon: 'Server', description: '', details: '', imageUrl: '' }
   const emptySolution = { title: '', description: '', benefits: '', imageUrl: '' }
   const emptyPartner = { name: '', category: 'Technology Partner', websiteUrl: '', description: '', logoUrl: '', isFeatured: true }
+  const emptyHeroSlide = { title: '', subtitle: '', badge: '', description: '', imageUrl: '', ctaText: 'Explore Products', ctaLink: '/shop', orderPosition: 0, isActive: true }
 
   const [newProduct, setNewProduct] = useState(emptyProduct)
   const [newCategory, setNewCategory] = useState(emptyCategory)
@@ -419,6 +427,56 @@ export function AdminDashboardClient({
     }
   }
 
+  // ─── Hero Slide Handlers ──────────────────────────────────────────────────
+  const handleCreateHeroSlide = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreating(true)
+    try {
+      const res = await fetch('/api/admin/hero-slides', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newHeroSlide),
+      })
+      if (res.ok) {
+        setShowHeroModal(false)
+        setNewHeroSlide(emptyHeroSlide)
+        flash('✅ Hero slide created')
+        const refresh = await fetch('/api/admin/hero-slides')
+        if (refresh.ok) setLocalHeroSlides(await refresh.json())
+      } else {
+        flash('❌ Failed to create hero slide')
+      }
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleEditHeroSlide = (slide: any) => {
+    setEditHeroSlide({ ...slide })
+    setShowEditHeroModal(true)
+  }
+
+  const handleSaveEditHeroSlide = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/hero-slides/${editHeroSlide.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editHeroSlide),
+      })
+      if (res.ok) {
+        setLocalHeroSlides((prev) => prev.map((s) => (s.id === editHeroSlide.id ? { ...s, ...editHeroSlide } : s)))
+        setShowEditHeroModal(false)
+        flash('✅ Hero slide updated')
+      } else {
+        flash('❌ Failed to update hero slide')
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
   // ─── Delete handler ────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!showDeleteConfirm) return
@@ -429,6 +487,7 @@ export function AdminDashboardClient({
       if (showDeleteConfirm.type === 'category') url = `/api/admin/categories/${showDeleteConfirm.id}`
       if (showDeleteConfirm.type === 'solution') url = `/api/admin/solutions/${showDeleteConfirm.id}`
       if (showDeleteConfirm.type === 'partner') url = `/api/admin/partners/${showDeleteConfirm.id}`
+      if (showDeleteConfirm.type === 'hero_slide') url = `/api/admin/hero-slides/${showDeleteConfirm.id}`
 
       const res = await fetch(url, { method: 'DELETE' })
       if (res.ok) {
@@ -440,6 +499,8 @@ export function AdminDashboardClient({
           setLocalSolutions((prev) => prev.filter((s) => s.id !== showDeleteConfirm.id))
         if (showDeleteConfirm.type === 'partner')
           setLocalPartners((prev) => prev.filter((p) => p.id !== showDeleteConfirm.id))
+        if (showDeleteConfirm.type === 'hero_slide')
+          setLocalHeroSlides((prev) => prev.filter((h) => h.id !== showDeleteConfirm.id))
         flash(`✅ ${showDeleteConfirm.name} deleted`)
       } else {
         flash('❌ Delete failed')
@@ -516,6 +577,7 @@ export function AdminDashboardClient({
         <nav className="space-y-1 font-medium text-sm flex-1">
           <NavBtn tab="overview" icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" />
           <NavBtn tab="orders" icon={<ShoppingBag className="w-4 h-4" />} label="Orders" count={localOrders.length} />
+          <NavBtn tab="hero" icon={<Images className="w-4 h-4" />} label="Hero Carousel" count={localHeroSlides.length} />
           <NavBtn tab="products" icon={<Package className="w-4 h-4" />} label="Products" count={localProducts.length} />
           <NavBtn tab="categories" icon={<FolderTree className="w-4 h-4" />} label="Categories" count={localCategories.length} />
           <NavBtn tab="services" icon={<TrendingUp className="w-4 h-4" />} label="Services" count={servicesList.length} />
@@ -941,6 +1003,82 @@ export function AdminDashboardClient({
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+
+        {/* ══════════════════ TAB: HERO CAROUSEL ═══════════════════════════ */}
+        {activeTab === 'hero' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-400">
+                Manage dynamic homepage hero slides, captions, buttons & backgrounds
+              </span>
+              <Button onClick={() => setShowHeroModal(true)} size="sm" className="bg-primary hover:bg-primary/90 text-xs font-bold gap-1 h-8">
+                <Plus className="w-3.5 h-3.5" /> Add Hero Slide
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              {localHeroSlides.map((slide) => (
+                <div key={slide.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  {/* Image Preview Box */}
+                  <div className="w-full md:w-64 h-36 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800 shrink-0">
+                    {slide.imageUrl ? (
+                      <img src={slide.imageUrl} alt={slide.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-950 text-slate-600 text-xs font-bold">
+                        No Image Set
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${slide.isActive !== false ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-800 text-slate-400'}`}>
+                        {slide.isActive !== false ? 'Active Slide' : 'Disabled'}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/90 text-slate-300 border border-slate-700">
+                        Pos #{slide.orderPosition || 0}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Slide Content */}
+                  <div className="space-y-2 flex-1">
+                    {slide.subtitle && (
+                      <span className="text-xs font-bold text-primary tracking-wider uppercase block">
+                        {slide.subtitle}
+                      </span>
+                    )}
+                    <h3 className="font-extrabold text-slate-100 text-lg leading-snug">{slide.title}</h3>
+                    {slide.description && (
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{slide.description}</p>
+                    )}
+                    <div className="flex items-center gap-3 pt-2 text-xs">
+                      {slide.ctaText && (
+                        <span className="bg-slate-800 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 font-bold">
+                          Button: {slide.ctaText} → ({slide.ctaLink || '/shop'})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex md:flex-col items-center gap-2 shrink-0 w-full md:w-auto justify-end border-t md:border-t-0 border-slate-800 pt-3 md:pt-0">
+                    <button
+                      onClick={() => handleEditHeroSlide(slide)}
+                      className="p-2 rounded-xl bg-slate-800 hover:bg-primary/20 text-slate-300 hover:text-primary transition-colors text-xs font-semibold flex items-center gap-1 px-3 w-full justify-center"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" /> Edit Slide
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteConfirm({ type: 'hero_slide', id: slide.id, name: slide.title })}
+                      className="p-2 rounded-xl bg-slate-800 hover:bg-red-900/30 text-slate-500 hover:text-red-400 transition-colors text-xs font-semibold flex items-center gap-1 px-3 w-full justify-center"
+                      title="Delete Slide"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
                     </button>
                   </div>
                 </div>
@@ -1468,6 +1606,125 @@ export function AdminDashboardClient({
               </Field>
               <div className="flex justify-end gap-2 pt-1">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowEditPartnerModal(false)} className="border-slate-700 text-xs h-8">Cancel</Button>
+                <Button type="submit" size="sm" disabled={saving} className="bg-primary text-xs h-8 font-bold">{saving ? 'Saving...' : 'Save Changes'}</Button>
+              </div>
+            </form>
+          </ModalWrap>
+        ),
+
+
+        // Create Hero Slide
+        showHeroModal && (
+          <ModalWrap key="create-hero" title="Add Homepage Hero Slide" onClose={() => setShowHeroModal(false)}>
+            <form onSubmit={handleCreateHeroSlide} className="space-y-3 text-xs">
+              <Field label="Slide Title *">
+                <input required value={newHeroSlide.title} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, title: e.target.value })} className={inputCls} placeholder="e.g. Advanced Electrical & Power Infrastructure" />
+              </Field>
+              <Field label="Subtitle / Tagline">
+                <input value={newHeroSlide.subtitle} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, subtitle: e.target.value })} className={inputCls} placeholder="e.g. Engineering Reliability & Excellence" />
+              </Field>
+              <Field label="Badge Label (Optional)">
+                <input value={newHeroSlide.badge} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, badge: e.target.value })} className={inputCls} placeholder="e.g. ISO 9001 Certified" />
+              </Field>
+              <Field label="Description">
+                <textarea rows={3} value={newHeroSlide.description} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, description: e.target.value })} className={inputCls} placeholder="Brief summary for hero banner..." />
+              </Field>
+              <Field label="Slide Background Image (Upload File or Image URL)">
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input value={newHeroSlide.imageUrl} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, imageUrl: e.target.value })} className={inputCls} placeholder="https://images.unsplash.com/..." />
+                    <label className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700 text-[10px] flex items-center gap-1">
+                      Upload Image
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewHeroSlide({ ...newHeroSlide, imageUrl: url }))} />
+                    </label>
+                  </div>
+                  {newHeroSlide.imageUrl && (
+                    <div className="h-28 w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative">
+                      <img src={newHeroSlide.imageUrl} alt="Hero slide preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Button CTA Text">
+                  <input value={newHeroSlide.ctaText} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, ctaText: e.target.value })} className={inputCls} placeholder="Explore Products" />
+                </Field>
+                <Field label="Button CTA Link">
+                  <input value={newHeroSlide.ctaLink} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, ctaLink: e.target.value })} className={inputCls} placeholder="/shop" />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Sort Order Position">
+                  <input type="number" value={newHeroSlide.orderPosition} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, orderPosition: parseInt(e.target.value, 10) || 0 })} className={inputCls} />
+                </Field>
+                <Field label="Status">
+                  <label className="flex items-center gap-2 pt-2 cursor-pointer font-bold text-slate-300">
+                    <input type="checkbox" checked={newHeroSlide.isActive} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, isActive: e.target.checked })} className="rounded bg-slate-950 border-slate-700 text-primary" />
+                    Active Slide
+                  </label>
+                </Field>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowHeroModal(false)} className="border-slate-700 text-xs h-8">Cancel</Button>
+                <Button type="submit" size="sm" disabled={creating} className="bg-primary text-xs h-8 font-bold">{creating ? 'Creating...' : 'Add Slide'}</Button>
+              </div>
+            </form>
+          </ModalWrap>
+        ),
+
+        // Edit Hero Slide
+        showEditHeroModal && editHeroSlide && (
+          <ModalWrap key="edit-hero" title="Edit Hero Slide" onClose={() => setShowEditHeroModal(false)}>
+            <form onSubmit={handleSaveEditHeroSlide} className="space-y-3 text-xs">
+              <Field label="Slide Title *">
+                <input required value={editHeroSlide.title || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, title: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="Subtitle / Tagline">
+                <input value={editHeroSlide.subtitle || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, subtitle: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="Badge Label (Optional)">
+                <input value={editHeroSlide.badge || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, badge: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="Description">
+                <textarea rows={3} value={editHeroSlide.description || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, description: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="Slide Background Image (Upload File or Image URL)">
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input value={editHeroSlide.imageUrl || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, imageUrl: e.target.value })} className={inputCls} />
+                    <label className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg cursor-pointer font-bold border border-slate-700 text-[10px] flex items-center gap-1">
+                      Upload Image
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditHeroSlide({ ...editHeroSlide, imageUrl: url }))} />
+                    </label>
+                  </div>
+                  {editHeroSlide.imageUrl && (
+                    <div className="h-28 w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative">
+                      <img src={editHeroSlide.imageUrl} alt="Hero slide preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Button CTA Text">
+                  <input value={editHeroSlide.ctaText || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, ctaText: e.target.value })} className={inputCls} />
+                </Field>
+                <Field label="Button CTA Link">
+                  <input value={editHeroSlide.ctaLink || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, ctaLink: e.target.value })} className={inputCls} />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Sort Order Position">
+                  <input type="number" value={editHeroSlide.orderPosition ?? 0} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, orderPosition: parseInt(e.target.value, 10) || 0 })} className={inputCls} />
+                </Field>
+                <Field label="Status">
+                  <label className="flex items-center gap-2 pt-2 cursor-pointer font-bold text-slate-300">
+                    <input type="checkbox" checked={editHeroSlide.isActive !== false} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, isActive: e.target.checked })} className="rounded bg-slate-950 border-slate-700 text-primary" />
+                    Active Slide
+                  </label>
+                </Field>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowEditHeroModal(false)} className="border-slate-700 text-xs h-8">Cancel</Button>
                 <Button type="submit" size="sm" disabled={saving} className="bg-primary text-xs h-8 font-bold">{saving ? 'Saving...' : 'Save Changes'}</Button>
               </div>
             </form>

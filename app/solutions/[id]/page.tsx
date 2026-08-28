@@ -1,165 +1,221 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { MainHeader } from '@/components/main-header'
+import { FloatingWhatsApp } from '@/components/floating-whatsapp'
+import { getSolutionById, getSiteSettings, getProductCategories } from '@/lib/db-data'
+import { ArrowLeft, Zap, CheckCircle2, ShieldCheck, Phone, MessageSquare, ArrowRight, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Zap, Check } from 'lucide-react'
-import { getSolutions } from '@/app/actions/content'
 
-export const metadata = {
-  title: 'Solution Details - Global Spec Solutions',
-  description: 'Detailed information about our business solutions',
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const id = parseInt(resolvedParams.id, 10)
+  const solution = !isNaN(id) ? await getSolutionById(id) : null
+
+  return {
+    title: solution ? `${solution.title} | Global Spec Solutions` : 'Solution Details | Global Spec Solutions',
+    description: solution?.description || 'Enterprise engineering & power infrastructure solutions.',
+  }
 }
 
 export default async function SolutionDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const solutions = await getSolutions()
-  const solution = solutions.find((s) => s.id === parseInt(params.id))
+  const resolvedParams = await params
+  const id = parseInt(resolvedParams.id, 10)
+
+  const [solution, siteSettings, categories] = await Promise.all([
+    !isNaN(id) ? getSolutionById(id) : null,
+    getSiteSettings(),
+    getProductCategories(),
+  ])
+
+  const whatsappNumber = siteSettings.whatsapp_number || '+254721113431'
 
   if (!solution) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Solution Not Found</h1>
-          <p className="text-muted-foreground mb-8">The solution you&apos;re looking for doesn&apos;t exist.</p>
-          <a href="/solutions">
-            <Button className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Solutions
-            </Button>
-          </a>
-        </div>
+      <div className="min-h-screen bg-background flex flex-col justify-between">
+        <MainHeader categories={categories as any} siteSettings={siteSettings} />
+        <main className="flex-1 flex items-center justify-center p-6 text-center">
+          <div className="max-w-md space-y-4">
+            <Zap className="w-16 h-16 text-primary mx-auto opacity-50" />
+            <h1 className="text-3xl font-extrabold text-slate-900">Solution Not Found</h1>
+            <p className="text-slate-600 text-sm">The solution requested could not be located in our catalog.</p>
+            <Link href="/solutions">
+              <Button className="gap-2 bg-primary hover:bg-primary/90">
+                <ArrowLeft className="w-4 h-4" /> View All Solutions
+              </Button>
+            </Link>
+          </div>
+        </main>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary/10 to-accent/10 py-8 md:py-12 lg:py-16">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <a href="/solutions" className="inline-flex items-center gap-2 text-primary hover:text-accent transition-colors mb-4 md:mb-6 text-sm md:text-base">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Solutions
-          </a>
-          <div className="flex items-center gap-2 mb-3 md:mb-4">
-            <Zap className="w-5 md:w-6 h-5 md:h-6 text-accent" />
-            <span className="text-xs md:text-sm font-semibold text-primary uppercase tracking-wider">Solution Details</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-balance leading-tight">{solution.title}</h1>
-        </div>
-      </div>
+  const benefitsList = solution.benefits
+    ? solution.benefits.split(',').map((b: string) => b.trim()).filter(Boolean)
+    : []
 
-      {/* Main Content */}
-      <section className="py-12 md:py-16 lg:py-24">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-12 mb-12 md:mb-16">
-            {/* Image */}
-            <div className="md:col-span-2">
-              {solution.imageUrl ? (
-                <div className="w-full h-48 sm:h-64 md:h-96 rounded-lg overflow-hidden shadow-xl">
+  const whatsappMessage = encodeURIComponent(
+    `Hello Global Spec Solutions! I am interested in your Enterprise Solution: "${solution.title}". Please provide a quotation and technical specifications.`
+  )
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+      <MainHeader categories={categories as any} siteSettings={siteSettings} />
+
+      <main className="flex-1">
+        {/* Breadcrumb Navigation Bar */}
+        <div className="bg-white border-b border-slate-200 py-3 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <Link
+              href="/solutions"
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Solutions
+            </Link>
+            <span className="text-xs text-slate-500 font-medium truncate max-w-xs sm:max-w-md">
+              GlobalSpec / Solutions / {solution.title}
+            </span>
+          </div>
+        </div>
+
+        {/* Hero Header */}
+        <section className="bg-slate-900 text-white py-12 md:py-16 px-4 sm:px-6 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 text-xs font-bold uppercase tracking-wider">
+              <Zap className="w-3.5 h-3.5" /> Enterprise Solution
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white max-w-4xl leading-tight">
+              {solution.title}
+            </h1>
+            <p className="text-slate-300 text-base sm:text-lg max-w-3xl leading-relaxed">
+              {solution.description}
+            </p>
+          </div>
+        </section>
+
+        {/* Main Content & Specs Grid */}
+        <section className="py-12 md:py-16 max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Image & Detailed Scope */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Solution Banner Image */}
+              <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-md relative group">
+                {solution.imageUrl ? (
                   <img
                     src={solution.imageUrl}
                     alt={solution.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-72 sm:h-96 object-cover"
                   />
+                ) : (
+                  <div className="w-full h-72 bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+                    <Zap className="w-20 h-20 text-primary/40" />
+                  </div>
+                )}
+                <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-slate-700">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> ISO Certified Deployment
                 </div>
-              ) : (
-                <div className="w-full h-96 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <Zap className="w-24 h-24 text-primary/50" />
+              </div>
+
+              {/* Solution Overview Card */}
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-primary" /> Solution Architecture & Overview
+                </h2>
+                <p className="text-slate-600 leading-relaxed text-sm sm:text-base font-normal">
+                  {solution.description}
+                </p>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700">Key Standards & Guarantee</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Designed, supplied, installed, and commissioned by Global Spec Solutions certified field engineers. Backed by standard OEM warranty and 24/7 SLA maintenance options.
+                  </p>
+                </div>
+              </div>
+
+              {/* Key Benefits Grid */}
+              {benefitsList.length > 0 && (
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">Key System Benefits</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {benefitsList.map((benefit: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-start gap-3"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <h3 className="font-bold text-slate-900 text-sm">{benefit}</h3>
+                          <p className="text-xs text-slate-500 mt-0.5">Optimized for reliability and peak enterprise efficiency.</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Quick Info */}
-            <div>
-              <Card className="border-border sticky top-6">
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Start</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{solution.description}</p>
-                  <a href="/#contact" className="block">
-                    <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                      Request a Quote
+            {/* Right Column - Action Sidebar */}
+            <div className="space-y-6">
+              {/* Inquiry & WhatsApp CTA Box */}
+              <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 space-y-6 border border-slate-800 shadow-xl sticky top-24">
+                <div className="space-y-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-primary block">Turnkey Implementation</span>
+                  <h3 className="text-xl font-extrabold text-white">Get a Custom Proposal</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Speak directly with an enterprise engineer to tailor this solution to your project site and specifications.
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  {/* WhatsApp Quick Order */}
+                  <a
+                    href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <Button className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-2 py-3 h-auto shadow-lg shadow-emerald-900/30">
+                      <MessageSquare className="w-4 h-4 fill-white" /> Request Quote on WhatsApp
                     </Button>
                   </a>
-                  <Button variant="outline" className="w-full">
-                    Download Brochure
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
 
-          {/* Benefits */}
-          {solution.benefits && (
-            <div className="mb-12 md:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8">Key Benefits</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {solution.benefits.split(',').map((benefit, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-4 p-6 rounded-lg border border-border hover:border-primary transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center mt-1">
-                      <Check className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">{benefit.trim()}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Comprehensive support and implementation for {benefit.toLowerCase()}
-                      </p>
-                    </div>
+                  {/* Contact Form Link */}
+                  <Link href="/#contact" className="block">
+                    <Button variant="outline" className="w-full border-slate-700 text-slate-200 hover:bg-slate-800 font-bold gap-2 py-3 h-auto">
+                      <Phone className="w-4 h-4 text-primary" /> Contact Sales Team
+                    </Button>
+                  </Link>
+
+                  {/* Browse Products CTA */}
+                  <Link href="/shop" className="block">
+                    <Button variant="ghost" className="w-full text-slate-400 hover:text-white hover:bg-slate-800/50 text-xs font-semibold gap-1">
+                      Browse Related Equipment Catalog <ArrowRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="pt-4 border-t border-slate-800 space-y-2 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Turnkey Site Assessment & Engineering</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Why Choose Us */}
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-6 md:p-8 lg:p-12 mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8">Why Choose This Solution?</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
-              <div className="space-y-3">
-                <div className="text-4xl font-bold text-accent">100%</div>
-                <p className="font-semibold">Customizable</p>
-                <p className="text-sm text-muted-foreground">Tailored specifically to your business needs</p>
-              </div>
-              <div className="space-y-3">
-                <div className="text-4xl font-bold text-accent">24/7</div>
-                <p className="font-semibold">Expert Support</p>
-                <p className="text-sm text-muted-foreground">Round-the-clock assistance from our team</p>
-              </div>
-              <div className="space-y-3">
-                <div className="text-4xl font-bold text-accent">3+</div>
-                <p className="font-semibold">Years Experience</p>
-                <p className="text-sm text-muted-foreground">Proven track record of success</p>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    <span>OEM Equipment & Full Warranty</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </section>
+      </main>
 
-          {/* CTA */}
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4">Ready to get started?</h2>
-            <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed">
-              Contact our team of experts to discuss how this solution can benefit your organization.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-              <a href="/#contact">
-                <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                  Contact Us Now
-                </Button>
-              </a>
-              <a href="/solutions">
-                <Button size="lg" variant="outline">
-                  Explore Other Solutions
-                </Button>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FloatingWhatsApp
+        whatsappNumber={siteSettings.whatsapp_number}
+        enabled={siteSettings.floating_whatsapp_enabled !== 'false'}
+      />
     </div>
   )
 }

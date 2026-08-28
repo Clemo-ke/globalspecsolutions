@@ -103,6 +103,15 @@ export async function getSolutions() {
   }
 }
 
+export async function getSolutionById(id: number) {
+  try {
+    const res = await db.select().from(solutions).where(eq(solutions.id, id)).limit(1)
+    return res[0] || null
+  } catch {
+    return null
+  }
+}
+
 export async function getServices() {
   try {
     return await db.select().from(services).where(eq(services.isActive, true)).orderBy(services.orderPosition)
