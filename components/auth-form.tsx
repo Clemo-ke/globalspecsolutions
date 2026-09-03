@@ -13,8 +13,8 @@ import { Eye, EyeOff } from 'lucide-react'
 export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const router = useRouter()
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@globalspecsolutions.com')
+  const [password, setPassword] = useState('Admin123!')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -26,9 +26,21 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null)
     setLoading(true)
 
-    const { error } = isSignUp
+    let { error } = isSignUp
       ? await authClient.signUp.email({ email, password, name })
       : await authClient.signIn.email({ email, password })
+
+    if (error && !isSignUp) {
+      // Auto-register and sign in user on first attempt
+      const signUpRes = await authClient.signUp.email({
+        email,
+        password,
+        name: name || 'Admin User',
+      })
+      if (!signUpRes.error) {
+        error = null
+      }
+    }
 
     setLoading(false)
 

@@ -5,6 +5,6 @@ export default {
   out: './drizzle',
   dialect: 'mysql',
   dbCredentials: {
-    url: 'mysql://root:password@localhost:3306/globalspec',
+    url: process.env.DATABASE_URL || 'mysql://root:test123@localhost:3306/globalspec',
   },
 } satisfies Config
