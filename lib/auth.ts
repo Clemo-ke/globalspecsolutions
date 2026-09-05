@@ -26,7 +26,12 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
   trustedOrigins: [
+    'http://localhost:3000',
+    'http://localhost:3005',
+    'http://162.35.96.178',
+    'http://162.35.96.178:3005',
     ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
+    ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
     ...(process.env.DEPLOY_URL ? [process.env.DEPLOY_URL] : []),
     ...(process.env.URL ? [process.env.URL] : []),
     ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),

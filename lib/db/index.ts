@@ -8,11 +8,14 @@ declare global {
 }
 
 function createPool(): mysql.Pool {
+  if (process.env.DATABASE_URL) {
+    return mysql.createPool(process.env.DATABASE_URL)
+  }
   return mysql.createPool({
     host: '127.0.0.1',
     port: 3306,
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'password',
+    password: process.env.DB_PASSWORD || 'test123',
     database: process.env.DB_NAME || 'globalspec',
     waitForConnections: true,
     connectionLimit: 15,

@@ -225,14 +225,7 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
               <span>Contact</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 flex items-center justify-between text-muted-foreground"
-            >
-              <span>Admin Login</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+
           </nav>
         </div>
       )}

@@ -31,9 +31,9 @@ export default async function HomePage() {
     getSiteSettings(),
   ])
 
-  const phone = siteSettings.company_phone || '+254 721 113 431 / +254 725 440 342'
+  const phone = siteSettings.company_phone || '+254 722 795 726 / +254 720 891 035'
   const email = siteSettings.company_email || 'info@globalspecsolutions.com'
-  const address = siteSettings.company_address || 'Barclays House, Mai Mahiu road off Langata Road, P.O Box 9520-00200 Nairobi, Kenya'
+  const address = siteSettings.company_address || 'Barclay House, Mai Mahiu Rd, P.O. Box 101736 - 00101, Nairobi, Kenya'
 
   return (
     <div className="w-full bg-background text-foreground flex flex-col min-h-screen">
@@ -181,13 +181,19 @@ export default async function HomePage() {
                 Contact our engineering consultants today for a comprehensive facility assessment and tailored quote.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
+                <a href="/company-profile.pdf" download target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-lg gap-2">
+                    <Zap className="w-4 h-4" />
+                    Download Company Profile (PDF)
+                  </Button>
+                </a>
                 <a href={`mailto:${email}`}>
-                  <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold shadow-lg">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 font-bold">
                     Request Consultation
                   </Button>
                 </a>
                 <Link href="/shop">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 font-bold">
+                  <Button size="lg" variant="ghost" className="text-white hover:bg-white/10 font-bold">
                     Explore Shop Products
                   </Button>
                 </Link>
@@ -275,15 +281,14 @@ export default async function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-bold text-sm text-slate-100 mb-4 uppercase tracking-wider">Admin & Access</h4>
+              <h4 className="font-bold text-sm text-slate-100 mb-4 uppercase tracking-wider">Certifications & Quality</h4>
               <ul className="space-y-2.5 text-xs text-slate-400">
-                <li>
-                  <Link href="/admin" className="hover:text-primary transition-colors">
-                    Admin Portal Login
-                  </Link>
+                <li className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>ISO Certified Engineering</span>
                 </li>
                 <li className="pt-2 text-[11px] text-slate-500">
-                  <span>ISO Certified Enterprise Partner</span>
+                  <span>Enterprise Electrical Partner across East Africa</span>
                 </li>
               </ul>
             </div>
