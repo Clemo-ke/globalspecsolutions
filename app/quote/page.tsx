@@ -7,13 +7,15 @@ import { MainHeader } from '@/components/main-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Trash2, Plus, Minus, Send, CheckCircle2, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { useSession } from '@/lib/auth-client'
 
 export default function QuotePage() {
   const { quoteItems, removeFromQuote, updateQuantity, clearQuote } = useQuoteCart()
+  const { data: session } = useSession()
 
-  const [customerName, setCustomerName] = useState('')
+  const [customerName, setCustomerName] = useState(session?.user?.name || '')
   const [companyName, setCompanyName] = useState('')
-  const [customerEmail, setCustomerEmail] = useState('')
+  const [customerEmail, setCustomerEmail] = useState(session?.user?.email || '')
   const [customerPhone, setCustomerPhone] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -31,6 +33,7 @@ export default function QuotePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: session?.user?.id,
           customerName,
           companyName,
           customerEmail,

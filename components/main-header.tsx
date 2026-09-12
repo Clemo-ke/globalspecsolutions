@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/components/cart-context'
+import { useSession } from '@/lib/auth-client'
 import {
   ShoppingCart,
   Menu,
@@ -14,6 +15,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Zap,
+  UserRound,
+  LayoutDashboard,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -24,9 +27,30 @@ interface HeaderProps {
 
 export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) {
   const { totalItems } = useCart()
+  const { data: session } = useSession()
+  const [isAdmin, setIsAdmin] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    let active = true
+    fetch('/api/auth/session/role', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        if (!active) return
+        setIsAdmin(Boolean(payload?.isAdmin))
+      })
+      .catch(() => {
+        if (!active) return
+        const fallbackRole = String((session?.user as any)?.role || '').toLowerCase()
+        setIsAdmin(fallbackRole === 'admin' || fallbackRole === 'super-admin')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [session?.user])
 
   const phone = siteSettings.company_phone || '+254 721 113 431'
   const email = siteSettings.company_email || 'info@globalspecsolutions.com'
@@ -82,6 +106,9 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
           <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
+          <Link href="/departments" className="hover:text-primary transition-colors">
+            Departments
+          </Link>
           <Link href="/shop" className="hover:text-primary transition-colors">
             Shop
           </Link>
@@ -96,6 +123,9 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
           </Link>
           <Link href="/resources" className="hover:text-primary transition-colors">
             Resources
+          </Link>
+          <Link href="/account" className="hover:text-primary transition-colors">
+            Account
           </Link>
           <Link href="/#contact" className="hover:text-primary transition-colors">
             Contact
@@ -121,23 +151,17 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
           >
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                 {totalItems}
               </span>
             )}
           </Link>
 
-          {/* Quick CTA */}
-          <Link href="/shop" className="hidden sm:inline-flex">
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-sm">
-              Order Online
-            </Button>
-          </Link>
-
-          {/* Mobile Menu Toggle */}
+          {/* Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 lg:hidden text-foreground hover:bg-muted rounded-lg"
+            className="lg:hidden p-2 text-foreground hover:bg-muted rounded-lg"
+            title={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -172,14 +196,35 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
 
       {/* Mobile Slide-down Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-border/40 bg-background/98 px-6 py-6 space-y-4 shadow-2xl animate-in slide-in-from-top-3">
+        <div className="lg:hidden border-t border-border/40 bg-background/98 px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-3">
           <nav className="flex flex-col gap-3 font-semibold text-base">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 border-b border-border/30 flex items-center justify-between text-primary font-bold"
+              >
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-primary" />
+                  Admin Dashboard
+                </span>
+                <ChevronRight className="w-4 h-4 text-primary" />
+              </Link>
+            )}
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 border-b border-border/30 flex items-center justify-between"
             >
               <span>Home</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+            <Link
+              href="/departments"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2 border-b border-border/30 flex items-center justify-between"
+            >
+              <span>Departments</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
             <Link
@@ -218,6 +263,22 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
             <Link
+              href="/resources"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2 border-b border-border/30 flex items-center justify-between"
+            >
+              <span>Resources</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+            <Link
+              href="/account"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2 border-b border-border/30 flex items-center justify-between"
+            >
+              <span>Account</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+            <Link
               href="/#contact"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 border-b border-border/30 flex items-center justify-between"
@@ -225,7 +286,6 @@ export function MainHeader({ categories = [], siteSettings = {} }: HeaderProps) 
               <span>Contact</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
-
           </nav>
         </div>
       )}

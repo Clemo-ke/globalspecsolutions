@@ -5,6 +5,7 @@ import { HeroCarousel } from '@/components/hero-carousel'
 import { MovingServicesBanner } from '@/components/moving-services-banner'
 import { ProductsSection } from '@/components/products-section'
 import { SolutionsSection } from '@/components/solutions-section'
+import { DepartmentsSection } from '@/components/departments-section'
 import { ClientsPortfolio } from '@/components/clients-portfolio'
 import { ServicesShowcase } from '@/components/services-showcase'
 import { FloatingWhatsApp } from '@/components/floating-whatsapp'
@@ -18,10 +19,11 @@ import {
   getClients,
   getServices,
   getSiteSettings,
+  getDepartments,
 } from '@/lib/db-data'
 
 export default async function HomePage() {
-  const [heroSlides, categories, products, solutions, clients, services, siteSettings] = await Promise.all([
+  const [heroSlides, categories, products, solutions, clients, services, siteSettings, departments] = await Promise.all([
     getHeroSlides(),
     getProductCategories(),
     getProducts({ limit: 6 }),
@@ -29,6 +31,7 @@ export default async function HomePage() {
     getClients(),
     getServices(),
     getSiteSettings(),
+    getDepartments(),
   ])
 
   const phone = siteSettings.company_phone || '+254 722 795 726 / +254 720 891 035'
@@ -47,6 +50,11 @@ export default async function HomePage() {
         {/* Moving Services Slim Banner */}
         <MovingServicesBanner />
 
+        {/* Departments Section (SPEC: numbered interactive layout) */}
+        <div id="departments">
+          <DepartmentsSection departments={departments as any} />
+        </div>
+
         {/* Featured Products Section */}
         <div id="products">
           <ProductsSection products={products as any} categories={categories as any} />
@@ -64,13 +72,13 @@ export default async function HomePage() {
               <span className="text-xs font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 inline-block">
                 Interactive Utility Tool
               </span>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Solar Energy & Power Cost Savings Calculator</h2>
+              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">Solar Energy & Power Cost Savings Calculator</h2>
               <p className="text-slate-400 text-sm sm:text-base">
                 Estimate your monthly electricity cost reduction when switching to GlobalSpec commercial solar PV and hybrid battery energy storage.
               </p>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-2xl">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-sm">
               <div className="lg:col-span-7 space-y-6">
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -91,15 +99,15 @@ export default async function HomePage() {
                 <div className="grid grid-cols-3 gap-4 pt-4">
                   <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Est. Solar Offset</span>
-                    <span className="text-xl font-black text-emerald-400">75%</span>
+                    <span className="text-xl font-bold text-emerald-400">75%</span>
                   </div>
                   <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Monthly Savings</span>
-                    <span className="text-xl font-black text-primary">~KES 187,500</span>
+                    <span className="text-xl font-bold text-primary">~KES 187,500</span>
                   </div>
                   <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center">
                     <span className="text-[10px] text-slate-400 font-bold uppercase block">Payback Period</span>
-                    <span className="text-xl font-black text-amber-400">3.2 Years</span>
+                    <span className="text-xl font-bold text-amber-400">3.2 Years</span>
                   </div>
                 </div>
               </div>
@@ -175,7 +183,7 @@ export default async function HomePage() {
             </div>
 
             {/* CTA Banner */}
-            <div className="bg-gradient-to-r from-slate-900 via-primary/90 to-slate-950 text-white rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-r from-slate-900 via-primary/90 to-slate-950 text-white rounded-xl p-10 sm:p-14 text-center relative overflow-hidden shadow-sm">
               <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">Ready to Modernize Your Infrastructure?</h2>
               <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
                 Contact our engineering consultants today for a comprehensive facility assessment and tailored quote.
@@ -257,6 +265,11 @@ export default async function HomePage() {
             <div>
               <h4 className="font-bold text-sm text-slate-100 mb-4 uppercase tracking-wider">Quick Links</h4>
               <ul className="space-y-2.5 text-xs text-slate-400">
+                <li>
+                  <Link href="/departments" className="hover:text-primary transition-colors">
+                    Departments
+                  </Link>
+                </li>
                 <li>
                   <Link href="/services" className="hover:text-primary transition-colors">
                     Services

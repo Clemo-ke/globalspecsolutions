@@ -1,13 +1,12 @@
-import { auth } from '@/lib/auth'
+import { requireAdmin } from '@/lib/admin-guard'
 import { db } from '@/lib/db'
 import { orders } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
 
 // PUT /api/admin/orders/[id] - Update order status or details
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   try {
     const { id } = await params
@@ -16,6 +15,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const updateData: Record<string, any> = {}
     if (body.status !== undefined) updateData.status = body.status
+    if (body.paymentStatus !== undefined) updateData.paymentStatus = body.paymentStatus
     if (body.whatsappStatus !== undefined) updateData.whatsappStatus = body.whatsappStatus
     if (body.notes !== undefined) updateData.notes = body.notes
 
@@ -29,8 +29,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 // DELETE /api/admin/orders/[id] - Delete an order
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   try {
     const { id } = await params

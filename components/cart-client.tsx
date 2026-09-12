@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Lock,
+  MessageCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -187,11 +188,28 @@ export function CartClient() {
           </div>
         </div>
 
-        {/* WhatsApp Checkout Customer Form */}
-        <div className="lg:col-span-5">
+        {/* Checkout + Quick WhatsApp form */}
+        <div className="lg:col-span-5 space-y-5">
+          <div className="bg-card border border-border/60 rounded-xl p-5 space-y-3">
+            <h2 className="text-sm font-bold flex items-center gap-2">
+              <Lock className="w-4 h-4 text-primary" /> Ready to Checkout?
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Proceed to our checkout page to choose delivery and payment options, or place a quick WhatsApp order below.
+            </p>
+            <Link href="/checkout" className="block">
+              <Button className="w-full py-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base gap-2">
+                <ArrowRight className="w-4 h-4" /> Proceed to Checkout
+              </Button>
+            </Link>
+            <p className="text-[10px] text-muted-foreground text-center">
+              KES {subtotal.toLocaleString()} items total — delivery calculated at checkout
+            </p>
+          </div>
+
           <div className="bg-card border border-border/60 rounded-xl p-6 shadow-md space-y-6">
-            <h2 className="text-xl font-bold flex items-center gap-2 border-b border-border/60 pb-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Complete WhatsApp Checkout
+            <h2 className="text-sm font-bold flex items-center gap-2 border-b border-border/60 pb-3">
+              <MessageCircle className="w-4 h-4 text-emerald-500" /> Quick WhatsApp Order
             </h2>
 
             {errorMsg && (

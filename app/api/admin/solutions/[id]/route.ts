@@ -1,13 +1,12 @@
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { solutions } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
+import { requireAdmin } from '@/lib/admin-guard'
 
 // PUT /api/admin/solutions/[id] - Update a solution
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   try {
     const { id } = await params
@@ -33,8 +32,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 // DELETE /api/admin/solutions/[id] - Delete a solution
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   try {
     const { id } = await params

@@ -16,8 +16,11 @@ import {
   ChevronDown,
   X,
   BadgePercent,
+  ClipboardCheck,
+  PhoneCall,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { CategoryIcon } from '@/components/category-icon'
 
 interface ShopProduct {
   id: number
@@ -31,6 +34,10 @@ interface ShopProduct {
   imageUrl?: string | null
   features?: string | null
   stockStatus?: string | null
+  stockQuantity?: number | null
+  lowStockThreshold?: number | null
+  purchaseType?: string | null
+  brandId?: number | null
   isFeatured?: boolean | null
 }
 
@@ -50,7 +57,12 @@ interface ShopClientProps {
   initialSearch?: string
 }
 
-function stockLabel(status: string | null | undefined) {
+function stockLabel(status: string | null | undefined, qty?: number | null, threshold?: number | null) {
+  if (qty !== undefined && qty !== null) {
+    if (qty <= 0) return { text: 'Out of Stock', cls: 'text-red-500 bg-red-50 border-red-200' }
+    if (threshold && qty <= threshold) return { text: 'Low Stock', cls: 'text-amber-600 bg-amber-50 border-amber-200' }
+    return { text: 'In Stock', cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' }
+  }
   switch (status) {
     case 'in_stock': return { text: 'In Stock', cls: 'text-emerald-600 bg-emerald-50 border-emerald-200' }
     case 'available_on_order': return { text: 'On Order', cls: 'text-amber-600 bg-amber-50 border-amber-200' }
@@ -156,7 +168,7 @@ export function ShopClient({
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-10">
       {/* ── Hero Banner ── */}
-      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 text-white rounded-2xl p-8 sm:p-12 relative overflow-hidden shadow-2xl">
+      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 text-white rounded-xl p-8 sm:p-12 relative overflow-hidden shadow-md">
         <div className="absolute right-0 top-0 w-96 h-96 bg-primary/15 rounded-full blur-3xl" />
         <div className="absolute left-1/2 bottom-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="relative z-10 max-w-2xl">
@@ -341,7 +353,7 @@ export function ShopClient({
               onClick={() => setActiveCategory(activeCategory === cat.slug ? '' : cat.slug)}
               className={`px-4 py-2 text-xs font-semibold rounded-full whitespace-nowrap transition-all flex items-center gap-1.5 border ${activeCategory === cat.slug ? 'bg-primary text-primary-foreground border-primary shadow-sm' : 'bg-card border-border hover:bg-muted text-foreground'}`}
             >
-              {cat.icon && <span>{cat.icon}</span>}
+              <CategoryIcon name={cat.icon} className="w-3.5 h-3.5" />
               {cat.name} ({count})
             </button>
           )
@@ -351,7 +363,9 @@ export function ShopClient({
       {/* ── Active category header ── */}
       {activeCategoryObj && (
         <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-2xl">
-          <span className="text-2xl">{activeCategoryObj.icon || '📦'}</span>
+          <span className="p-2 rounded-xl bg-primary/10 border border-primary/20 text-primary">
+            <CategoryIcon name={activeCategoryObj.icon} className="w-5 h-5" />
+          </span>
           <div>
             <h2 className="font-bold text-foreground">{activeCategoryObj.name}</h2>
             {activeCategoryObj.description && <p className="text-xs text-muted-foreground">{activeCategoryObj.description}</p>}
@@ -380,7 +394,7 @@ export function ShopClient({
             const price = parseFloat(product.price || '0')
             const salePrice = product.salePrice ? parseFloat(product.salePrice) : null
             const discountPct = salePrice && price ? Math.round(((price - salePrice) / price) * 100) : null
-            const stock = stockLabel(product.stockStatus)
+            const stock = stockLabel(product.stockStatus, product.stockQuantity, product.lowStockThreshold)
             const catObj = categories.find((c) => c.id === product.categoryId)
 
             return (
@@ -469,18 +483,32 @@ export function ShopClient({
                     </div>
 
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className={`flex-1 gap-1.5 font-semibold text-xs transition-all ${addedNoticeId === product.id ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-primary hover:bg-primary/90'}`}
-                        onClick={() => handleAddToCart(product)}
-                        disabled={product.stockStatus === 'out_of_stock'}
-                      >
-                        {addedNoticeId === product.id ? (
-                          <><Check className="w-3.5 h-3.5" /> Added!</>
-                        ) : (
-                          <><ShoppingCart className="w-3.5 h-3.5" /> Add to Cart</>
-                        )}
-                      </Button>
+                      {product.purchaseType === 'request_quote' ? (
+                        <Link href={`/quote?product=${product.slug}`} className="flex-1">
+                          <Button size="sm" className="w-full gap-1.5 font-semibold text-xs bg-amber-500 hover:bg-amber-500/90">
+                            <ClipboardCheck className="w-3.5 h-3.5" /> Request Quote
+                          </Button>
+                        </Link>
+                      ) : product.purchaseType === 'contact_sales' ? (
+                        <Link href={`/shop/product/${product.slug}`} className="flex-1">
+                          <Button size="sm" variant="outline" className="w-full gap-1.5 font-semibold text-xs border-amber-500/50 text-amber-600 dark:text-amber-400">
+                            <PhoneCall className="w-3.5 h-3.5" /> Contact Sales
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className={`flex-1 gap-1.5 font-semibold text-xs transition-all ${addedNoticeId === product.id ? 'bg-emerald-600 hover:bg-emerald-600' : 'bg-primary hover:bg-primary/90'}`}
+                          onClick={() => handleAddToCart(product)}
+                          disabled={product.stockStatus === 'out_of_stock' || (product.stockQuantity !== undefined && product.stockQuantity !== null && product.stockQuantity <= 0)}
+                        >
+                          {addedNoticeId === product.id ? (
+                            <><Check className="w-3.5 h-3.5" /> Added!</>
+                          ) : (
+                            <><ShoppingCart className="w-3.5 h-3.5" /> Add to Cart</>
+                          )}
+                        </Button>
+                      )}
                       <Link href={`/shop/product/${product.slug}`}>
                         <Button size="sm" variant="outline" className="font-semibold text-xs border-border px-3">
                           View

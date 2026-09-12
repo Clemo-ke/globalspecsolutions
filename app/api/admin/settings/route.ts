@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { siteSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/admin-guard'
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await requireAdmin()
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
     const body = await req.json()
 
     for (const [key, val] of Object.entries(body)) {

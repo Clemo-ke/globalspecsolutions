@@ -21,6 +21,16 @@ export const auth = betterAuth({
     schema,
   }),
   baseURL: getBaseURL(),
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'customer',
+        input: false,
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,

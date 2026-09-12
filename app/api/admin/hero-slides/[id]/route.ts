@@ -1,15 +1,14 @@
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { heroSlides } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
+import { requireAdmin } from '@/lib/admin-guard'
 
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   const resolvedParams = await params
   const id = parseInt(resolvedParams.id, 10)
@@ -39,8 +38,8 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   const resolvedParams = await params
   const id = parseInt(resolvedParams.id, 10)

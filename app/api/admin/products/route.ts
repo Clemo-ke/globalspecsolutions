@@ -1,19 +1,19 @@
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { products, productCategories, services, partners, solutions } from '@/lib/db/schema'
-import { headers } from 'next/headers'
+import { products, productCategories, productSpecs, productDepartments, services, partners, solutions } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
+import { requireAdmin } from '@/lib/admin-guard'
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   const prods = await db.select().from(products)
   return Response.json(prods)
 }
 
 export async function POST(req: Request) {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) return new Response('Unauthorized', { status: 401 })
+  const session = await requireAdmin()
+  if (!session) return new Response('Unauthorized', { status: 401 })
 
   try {
     const body = await req.json()
@@ -101,20 +101,43 @@ export async function POST(req: Request) {
     await db.insert(products).values({
       name: body.name,
       slug: body.slug || slug,
+      shortDescription: body.shortDescription || '',
       description: body.description || '',
       price: body.price ? body.price.toString() : '0',
       salePrice: body.salePrice ? body.salePrice.toString() : null,
+      costPrice: body.costPrice ? body.costPrice.toString() : null,
+      currency: body.currency || 'KES',
       categoryId: body.categoryId ? Number(body.categoryId) : 1,
+      brandId: body.brandId ? Number(body.brandId) : null,
       imageUrl:
         body.imageUrl ||
         'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
       sku: body.sku || `GSS-${Math.floor(Math.random() * 9000 + 1000)}`,
+      purchaseType: body.purchaseType || 'buy_online',
+      stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 0,
+      lowStockThreshold: body.lowStockThreshold !== undefined ? Number(body.lowStockThreshold) : 5,
       stockStatus: body.stockStatus || 'in_stock',
       isFeatured: Boolean(body.isFeatured),
       features: body.features || '',
       specifications: body.specifications || '',
       isActive: true,
     })
+
+    // Attach dynamic specs + department links
+    const [created] = await db.select().from(products).where(eq(products.slug, body.slug || slug))
+    if (created) {
+      const specs: { label: string; value: string }[] = Array.isArray(body.specs) ? body.specs : []
+      for (let i = 0; i < specs.length; i++) {
+        const s = specs[i]
+        if (s.label && s.value) {
+          await db.insert(productSpecs).values({ productId: created.id, label: s.label, value: s.value, orderPosition: i })
+        }
+      }
+      const deptIds: number[] = Array.isArray(body.departmentIds) ? body.departmentIds.map(Number).filter(Boolean) : []
+      for (const deptId of deptIds) {
+        await db.insert(productDepartments).values({ productId: created.id, departmentId: deptId })
+      }
+    }
 
     return Response.json({ success: true, message: 'Product created successfully' })
   } catch (err: any) {

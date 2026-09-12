@@ -1,14 +1,32 @@
 import { db } from '@/lib/db'
 import { quoteRequests, quoteItems } from '@/lib/db/schema'
 import { NextResponse } from 'next/server'
+import { getOrCreateCustomer } from '@/lib/db-data'
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { customerName, companyName, customerEmail, customerPhone, notes, items } = body
+    const { userId, customerName, companyName, customerEmail, customerPhone, notes, items } = body
 
     if (!customerName || !customerEmail || !customerPhone) {
       return NextResponse.json({ error: 'Missing required customer details' }, { status: 400 })
+    }
+
+    // Link to customer account when signed in
+    let customerId: number | null = null
+    if (userId) {
+      try {
+        const customer = await getOrCreateCustomer({
+          userId,
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+          company: companyName || null,
+        })
+        customerId = customer.id
+      } catch (e) {
+        console.error('Quote customer link failed (continuing):', e)
+      }
     }
 
     // Generate unique Quote Reference
@@ -16,6 +34,7 @@ export async function POST(req: Request) {
 
     const [inserted] = await db.insert(quoteRequests).values({
       quoteNumber,
+      customerId,
       customerName,
       companyName,
       customerEmail,

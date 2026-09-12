@@ -3,6 +3,10 @@ import {
   heroSlides,
   productCategories,
   products,
+  brands,
+  departments,
+  productDepartments,
+  productSpecs,
   solutions,
   clients,
   services,
@@ -17,10 +21,15 @@ import {
   quoteItems,
 } from './db/schema'
 import { eq } from 'drizzle-orm'
+import { ensureDefaultRoles } from './permissions'
 
 export async function seedDatabase() {
   try {
-    console.log('🌱 Seeding MySQL database for Global Spec Solutions...')
+    console.log('[SEED] Seeding MySQL database for Global Spec Solutions...')
+
+    // ─── Roles & Permissions (Part 32) ──────────────────────────────────────
+    await ensureDefaultRoles()
+    console.log('[OK] Default roles & permissions seeded')
 
     // ─── Site Settings ────────────────────────────────────────────────────────
     const initialSettings = [
@@ -31,12 +40,30 @@ export async function seedDatabase() {
       { settingKey: 'floating_whatsapp_enabled', settingValue: 'true', description: 'Enable floating WhatsApp widget' },
       { settingKey: 'site_name', settingValue: 'Global Spec Solutions', description: 'Site brand name' },
       { settingKey: 'primary_color', settingValue: '#2563eb', description: 'Brand primary color' },
+      {
+        settingKey: 'delivery_methods',
+        settingValue: JSON.stringify([
+          { id: 'nairobi', name: 'Nairobi Delivery', cost: 500, note: 'Within Nairobi & environs (1-3 days)' },
+          { id: 'countrywide', name: 'Countrywide Delivery', cost: 1500, note: 'Nationwide via courier (2-5 days)' },
+          { id: 'pickup', name: 'Collection Point / Pickup', cost: 0, note: 'Pick up at our Nairobi office' },
+        ]),
+        description: 'Available delivery methods for checkout (JSON array with id, name, cost, note)',
+      },
+      {
+        settingKey: 'payment_methods',
+        settingValue: JSON.stringify([
+          { id: 'mpesa', name: 'M-Pesa / Mobile Money', instructions: 'Pay via M-Pesa paybill. Reference details will be sent on WhatsApp.' },
+          { id: 'bank', name: 'Bank Transfer', instructions: 'Bank details will be shared on confirmation via WhatsApp.' },
+          { id: 'card', name: 'Card Payment', instructions: 'Secure card payment link will be sent to your email.' },
+        ]),
+        description: 'Accepted payment methods for checkout (JSON array with id, name, instructions)',
+      },
     ]
     for (const setting of initialSettings) {
       const existing = await db.select().from(siteSettings).where(eq(siteSettings.settingKey, setting.settingKey))
       if (existing.length === 0) await db.insert(siteSettings).values(setting)
     }
-    console.log('✅ Site settings seeded')
+    console.log('[OK] Site settings seeded')
 
     // ─── Hero Slides ──────────────────────────────────────────────────────────
     const heroData = [
@@ -75,7 +102,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(heroSlides).where(eq(heroSlides.title, slide.title))
       if (existing.length === 0) await db.insert(heroSlides).values(slide)
     }
-    console.log('✅ Hero slides seeded')
+    console.log('[OK] Hero slides seeded')
 
     // ─── Services ─────────────────────────────────────────────────────────────
     const serviceData = [
@@ -144,7 +171,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(services).where(eq(services.slug, srv.slug))
       if (existing.length === 0) await db.insert(services).values(srv)
     }
-    console.log('✅ Services seeded')
+    console.log('[OK] Services seeded')
 
     // ─── Industries ───────────────────────────────────────────────────────────
     const industryData = [
@@ -159,7 +186,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(industries).where(eq(industries.slug, ind.slug))
       if (existing.length === 0) await db.insert(industries).values(ind)
     }
-    console.log('✅ Industries seeded')
+    console.log('[OK] Industries seeded')
 
     // ─── Partners ─────────────────────────────────────────────────────────────
     const partnerData = [
@@ -174,7 +201,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(partners).where(eq(partners.slug, partner.slug))
       if (existing.length === 0) await db.insert(partners).values(partner)
     }
-    console.log('✅ Partners seeded')
+    console.log('[OK] Partners seeded')
 
     // ─── Resources ────────────────────────────────────────────────────────────
     const resourceData = [
@@ -186,21 +213,53 @@ export async function seedDatabase() {
       const existing = await db.select().from(resources).where(eq(resources.slug, res.slug))
       if (existing.length === 0) await db.insert(resources).values(res)
     }
-    console.log('✅ Resources seeded')
+    console.log('[OK] Resources seeded')
 
     // ─── Product Categories ───────────────────────────────────────────────────
     const categoryData = [
-      { slug: 'electrical-works', name: 'Electrical Works', description: 'High voltage installations, critical power, and switchgear', icon: '⚡', color: '#1d4ed8', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
-      { slug: 'ict-infrastructure', name: 'ICT Infrastructure', description: 'Data centre design, DCIM monitoring, and server room setups', icon: '🖥️', color: '#0891b2', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
-      { slug: 'renewable-energy', name: 'Renewable Energy', description: 'Industrial solar installations, battery backups, and inverters', icon: '☀️', color: '#d97706', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
-      { slug: 'software-security', name: 'Software & Security', description: 'Struxureware, cybersecurity, and environmental monitoring', icon: '🔒', color: '#7c3aed', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
-      { slug: 'generators-backup', name: 'Generators & Backup', description: 'Diesel generators, automatic transfer switches, and fuel systems', icon: '🔋', color: '#059669', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
+      { slug: 'electrical-works', name: 'Electrical Works', description: 'High voltage installations, critical power, and switchgear', icon: 'zap', color: '#1d4ed8', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
+      { slug: 'ict-infrastructure', name: 'ICT Infrastructure', description: 'Data centre design, DCIM monitoring, and server room setups', icon: 'server', color: '#0891b2', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
+      { slug: 'renewable-energy', name: 'Renewable Energy', description: 'Industrial solar installations, battery backups, and inverters', icon: 'sun', color: '#d97706', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
+      { slug: 'software-security', name: 'Software & Security', description: 'Struxureware, cybersecurity, and environmental monitoring', icon: 'lock', color: '#7c3aed', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
+      { slug: 'generators-backup', name: 'Generators & Backup', description: 'Diesel generators, automatic transfer switches, and fuel systems', icon: 'battery-charging', color: '#059669', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
     ]
     for (const cat of categoryData) {
       const existing = await db.select().from(productCategories).where(eq(productCategories.slug, cat.slug))
       if (existing.length === 0) await db.insert(productCategories).values(cat)
     }
-    console.log('✅ Product categories seeded')
+    console.log('[OK] Product categories seeded')
+
+    // ─── Departments (7 official GlobalSpec departments) ──────────────────────
+    const departmentData = [
+      { slug: 'electrical-works', name: 'Electrical Works', mainFunction: 'Electrical distribution, lighting, grounding and controls.', description: 'From LV/MV distribution to switchgear installation, our electrical engineers deliver safe, code-compliant power systems for industrial and commercial facilities.', capabilities: 'Power Distribution, Lighting Design, Earthing & Grounding, Motor Control Centres, Electrical Safety Audits', icon: 'zap', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
+      { slug: 'mechanical-cooling', name: 'Mechanical & Cooling Systems', mainFunction: 'HVAC, precision cooling, plumbing and mechanical services.', description: 'Precision cooling for data centres, HVAC design and installation, and mechanical services that keep critical facilities within operating envelopes.', capabilities: 'HVAC Engineering, Precision Cooling, Chilled Water Systems, Plumbing Services, Mechanical Maintenance', icon: 'snowflake', imageUrl: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1200&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
+      { slug: 'ict-infrastructure', name: 'ICT Infrastructure & Data Centers', mainFunction: 'Network infrastructure, cabling, server rooms and data centers.', description: 'Structured cabling, server room builds, and full data centre implementations managed with DCIM and environmental monitoring.', capabilities: 'Structured Cabling, Server Rack Installation, Data Centre Design, DCIM Monitoring, Network Infrastructure', icon: 'server', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
+      { slug: 'security-systems', name: 'Security Systems & Applications', mainFunction: 'CCTV, access control, alarms and integrated security.', description: 'Integrated physical security: video surveillance, access control, intrusion detection, and monitoring tied into facility management platforms.', capabilities: 'CCTV Surveillance, Access Control, Intrusion Alarms, Video Analytics, Integrated Security Platforms', icon: 'shield', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
+      { slug: 'renewable-energy', name: 'Renewable Energy', mainFunction: 'Solar, wind, energy storage and microgrid solutions.', description: 'Commercial and industrial solar PV, battery energy storage, hybrid inverters, and microgrid engineering for energy independence.', capabilities: 'Solar PV Systems, Battery Energy Storage, Hybrid Inverters, Microgrids, Energy Efficiency Audits', icon: 'sun', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
+      { slug: 'critical-power', name: 'Critical Power & Backup Systems', mainFunction: 'UPS, generators, batteries and redundant power infrastructure.', description: 'Uninterruptible power supplies, diesel generators, ATS, and battery rooms engineered for zero-downtime critical operations.', capabilities: 'UPS Systems, Diesel Generators, ATS & Switchgear, Battery Rooms, Redundant Power Design', icon: 'battery-charging', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&auto=format&fit=crop&q=80', orderPosition: 5, isActive: true },
+      { slug: 'building-works', name: 'Building Works', mainFunction: 'Renovation, refurbishment and minor building works.', description: 'Civil support for technical installations: refurbishment, containment, partitioning, and finishes that complement engineered systems.', capabilities: 'Renovation, Refurbishment, Partitioning, Cable Containment, Finishing Works', icon: 'building', imageUrl: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200&auto=format&fit=crop&q=80', orderPosition: 6, isActive: true },
+    ]
+    for (const dep of departmentData) {
+      const existing = await db.select().from(departments).where(eq(departments.slug, dep.slug))
+      if (existing.length === 0) await db.insert(departments).values(dep)
+    }
+    console.log('[OK] Departments seeded (7)')
+
+    // ─── Brands ───────────────────────────────────────────────────────────────
+    const brandData = [
+      { slug: 'schneider-electric', name: 'Schneider Electric', logoUrl: '', websiteUrl: 'https://www.se.com', description: 'Energy management and automation.', isActive: true, orderPosition: 0 },
+      { slug: 'apc', name: 'APC by Schneider Electric', logoUrl: '', websiteUrl: 'https://www.apc.com', description: 'UPS and critical power infrastructure.', isActive: true, orderPosition: 1 },
+      { slug: 'huawei-solar', name: 'Huawei Solar', logoUrl: '', websiteUrl: 'https://solar.huawei.com', description: 'Smart string inverters and battery storage.', isActive: true, orderPosition: 2 },
+      { slug: 'eaton', name: 'Eaton', logoUrl: '', websiteUrl: 'https://www.eaton.com', description: 'Power management and UPS systems.', isActive: true, orderPosition: 3 },
+      { slug: 'cisco', name: 'Cisco', logoUrl: '', websiteUrl: 'https://www.cisco.com', description: 'Enterprise networking.', isActive: true, orderPosition: 4 },
+      { slug: 'perkins', name: 'Perkins', logoUrl: '', websiteUrl: 'https://www.perkins.com', description: 'Diesel engines and generator sets.', isActive: true, orderPosition: 5 },
+      { slug: 'cummins', name: 'Cummins', logoUrl: '', websiteUrl: 'https://www.cummins.com', description: 'Power generation equipment.', isActive: true, orderPosition: 6 },
+    ]
+    for (const br of brandData) {
+      const existing = await db.select().from(brands).where(eq(brands.slug, br.slug))
+      if (existing.length === 0) await db.insert(brands).values(br)
+    }
+    console.log('[OK] Brands seeded')
 
     // Retrieve Category IDs
     const cats = await db.select().from(productCategories)
@@ -538,7 +597,80 @@ export async function seedDatabase() {
       const existing = await db.select().from(products).where(eq(products.slug, prod.slug))
       if (existing.length === 0) await db.insert(products).values(prod)
     }
-    console.log('✅ Products seeded (20 items)')
+    // ─── Enrich products: brands, departments, stock, specs (P1/P2) ──────────
+    const seededProducts = await db.select().from(products)
+    const deps = await db.select().from(departments)
+    const allBrands = await db.select().from(brands)
+
+    const getDepId = (slug: string) => deps.find((d) => d.slug === slug)?.id ?? null
+    const getBrandId = (slug: string) => allBrands.find((b) => b.slug === slug)?.id ?? null
+
+    const productEnrichment: Record<string, { brandSlug: string; departmentSlugs: string[]; stockQuantity: number; purchaseType: string; lowStockThreshold?: number; shortDescription: string }> = {
+      'apc-smart-ups-10kva': { brandSlug: 'apc', departmentSlugs: ['critical-power'], stockQuantity: 8, purchaseType: 'buy_online', lowStockThreshold: 3, shortDescription: '10kVA double-conversion online UPS with SNMP and extended runtime.' },
+      'eaton-9px-20kva-ups': { brandSlug: 'eaton', departmentSlugs: ['critical-power'], stockQuantity: 4, purchaseType: 'request_quote', shortDescription: '20kVA tower/rack UPS with lithium-ion option and integrated bypass.' },
+      'hv-switchgear-panel-11kv': { brandSlug: 'schneider-electric', departmentSlugs: ['electrical-works'], stockQuantity: 2, purchaseType: 'request_quote', shortDescription: '11kV metal-clad switchgear panel with vacuum circuit breakers.' },
+      'automatic-transfer-switch-200a': { brandSlug: 'schneider-electric', departmentSlugs: ['electrical-works', 'critical-power'], stockQuantity: 15, purchaseType: 'buy_online', shortDescription: 'Microprocessor-controlled 200A 3-phase automatic transfer switch.' },
+      'schneider-netshelter-sx-42u-rack': { brandSlug: 'schneider-electric', departmentSlugs: ['ict-infrastructure'], stockQuantity: 12, purchaseType: 'buy_online', shortDescription: 'Industry-standard 42U server rack enclosure with cable management.' },
+      'struxureware-dcim-suite': { brandSlug: 'schneider-electric', departmentSlugs: ['ict-infrastructure'], stockQuantity: 0, purchaseType: 'contact_sales', lowStockThreshold: 1, shortDescription: 'EcoStruxure IT DCIM suite with power and environmental monitoring.' },
+      'cisco-catalyst-9300-48p': { brandSlug: 'cisco', departmentSlugs: ['ict-infrastructure'], stockQuantity: 20, purchaseType: 'buy_online', lowStockThreshold: 5, shortDescription: '48-port Gigabit PoE+ enterprise access switch with 10G uplinks.' },
+      'structured-cabling-cat6a-kit': { brandSlug: 'schneider-electric', departmentSlugs: ['ict-infrastructure'], stockQuantity: 30, purchaseType: 'contact_sales', shortDescription: 'Complete Cat6A structured cabling package per floor.' },
+      'commercial-solar-50kw-system': { brandSlug: 'huawei-solar', departmentSlugs: ['renewable-energy'], stockQuantity: 0, purchaseType: 'request_quote', shortDescription: '50kWp turnkey rooftop solar with hybrid inverter and battery storage.' },
+      'huawei-sun2000-10kw-inverter': { brandSlug: 'huawei-solar', departmentSlugs: ['renewable-energy'], stockQuantity: 18, purchaseType: 'buy_online', lowStockThreshold: 5, shortDescription: 'Huawei 10kW smart string inverter with LUNA2000 battery compatibility.' },
+      'lithium-battery-48v-200ah': { brandSlug: 'huawei-solar', departmentSlugs: ['renewable-energy', 'critical-power'], stockQuantity: 14, purchaseType: 'buy_online', shortDescription: '48V 200Ah LiFePO4 battery bank with integrated BMS and RS485.' },
+      'solar-mounting-flat-roof-kit': { brandSlug: 'schneider-electric', departmentSlugs: ['renewable-energy', 'building-works'], stockQuantity: 25, purchaseType: 'buy_online', shortDescription: 'Ballasted flat roof mounting system for 20 panels.' },
+      'cctv-ip-camera-system-32ch': { brandSlug: 'schneider-electric', departmentSlugs: ['security-systems'], stockQuantity: 10, purchaseType: 'request_quote', shortDescription: '32-channel 4K IP surveillance package with NVR and installation.' },
+      'biometric-access-control-system': { brandSlug: 'schneider-electric', departmentSlugs: ['security-systems'], stockQuantity: 6, purchaseType: 'request_quote', shortDescription: 'Multi-door biometric + card + PIN access control system.' },
+      'fire-alarm-addressable-system': { brandSlug: 'schneider-electric', departmentSlugs: ['security-systems'], stockQuantity: 11, purchaseType: 'request_quote', shortDescription: 'Addressable fire detection system certified to BS 5839.' },
+      'perkins-100kva-diesel-generator': { brandSlug: 'perkins', departmentSlugs: ['critical-power'], stockQuantity: 3, purchaseType: 'request_quote', shortDescription: '100kVA soundproof Perkins diesel generator with AMF control.' },
+      'cummins-250kva-generator-set': { brandSlug: 'cummins', departmentSlugs: ['critical-power'], stockQuantity: 0, purchaseType: 'contact_sales', shortDescription: 'Industrial 250kVA Cummins generator set with remote monitoring.' },
+      'dc-power-system-48v-rectifier': { brandSlug: 'schneider-electric', departmentSlugs: ['critical-power', 'ict-infrastructure'], stockQuantity: 7, purchaseType: 'request_quote', shortDescription: 'Modular 48V DC power plant with 200A rectifier capacity.' },
+      'building-management-system': { brandSlug: 'schneider-electric', departmentSlugs: ['electrical-works', 'security-systems'], stockQuantity: 0, purchaseType: 'contact_sales', shortDescription: 'Integrated BMS covering HVAC, lighting, access and energy metering.' },
+      'solar-water-pump-system-5hp': { brandSlug: 'huawei-solar', departmentSlugs: ['renewable-energy'], stockQuantity: 9, purchaseType: 'request_quote', shortDescription: '5HP solar-powered submersible pump with VFD controller.' },
+    }
+
+    for (const prod of seededProducts) {
+      const info = productEnrichment[prod.slug]
+      if (!info) continue
+      const brandId = getBrandId(info.brandSlug)
+      const updates: Record<string, unknown> = {
+        brandId,
+        stockQuantity: info.stockQuantity,
+        purchaseType: info.purchaseType,
+        shortDescription: info.shortDescription,
+      }
+      if (info.lowStockThreshold !== undefined) updates.lowStockThreshold = info.lowStockThreshold
+      if (brandId !== null) updates.brandId = brandId
+      await db.update(products).set(updates as any).where(eq(products.id, prod.id))
+
+      // Department links (many-to-many)
+      for (const depSlug of info.departmentSlugs) {
+        const depId = getDepId(depSlug)
+        if (depId !== null) {
+          const existingLink = await db.select().from(productDepartments).where(eq(productDepartments.productId, prod.id))
+          const already = existingLink.find((l) => l.departmentId === depId)
+          if (!already) await db.insert(productDepartments).values({ productId: prod.id, departmentId: depId })
+        }
+      }
+
+      // Dynamic specs parsed from legacy specifications JSON
+      if (prod.specifications) {
+        try {
+          const parsed = JSON.parse(prod.specifications) as Record<string, string>
+          const entries = Object.entries(parsed)
+          const existingSpecs = await db.select().from(productSpecs).where(eq(productSpecs.productId, prod.id))
+          if (existingSpecs.length === 0) {
+            let order = 0
+            for (const [key, value] of entries) {
+              await db.insert(productSpecs).values({ productId: prod.id, label: key, value: String(value), orderPosition: order })
+              order += 1
+            }
+          }
+        } catch {
+          // ignore malformed JSON specifications
+        }
+      }
+    }
+    console.log('[OK] Products enriched (brands, departments, stock, specs)')
 
     // ─── Solutions ────────────────────────────────────────────────────────────
     const solutionData = [
@@ -550,7 +682,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(solutions).where(eq(solutions.slug, sol.slug))
       if (existing.length === 0) await db.insert(solutions).values(sol)
     }
-    console.log('✅ Solutions seeded')
+    console.log('[OK] Solutions seeded')
 
     // ─── Mock Clients / Portfolio ─────────────────────────────────────────────
     const clientData = [
@@ -563,7 +695,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(clients).where(eq(clients.name, client.name))
       if (existing.length === 0) await db.insert(clients).values(client)
     }
-    console.log('✅ Clients/portfolio seeded')
+    console.log('[OK] Clients/portfolio seeded')
 
     // ─── Mock Orders ──────────────────────────────────────────────────────────
     const allProducts = await db.select().from(products)
@@ -668,7 +800,7 @@ export async function seedDatabase() {
         }
       }
     }
-    console.log('✅ Mock orders seeded')
+    console.log('[OK] Mock orders seeded')
 
     // ─── Mock Contact Messages ────────────────────────────────────────────────
     const mockMessages = [
@@ -681,7 +813,7 @@ export async function seedDatabase() {
       const existing = await db.select().from(contactMessages).where(eq(contactMessages.email, msg.email))
       if (existing.length === 0) await db.insert(contactMessages).values(msg)
     }
-    console.log('✅ Mock contact messages seeded')
+    console.log('[OK] Mock contact messages seeded')
 
     // ─── Mock Quote Requests ──────────────────────────────────────────────────
     const mockQuotes = [
@@ -700,11 +832,11 @@ export async function seedDatabase() {
         }
       }
     }
-    console.log('✅ Mock quote requests seeded')
+    console.log('[OK] Mock quote requests seeded')
 
-    console.log('\n🎉 All seed data inserted successfully!')
+    console.log('\n[OK] All seed data inserted successfully!')
   } catch (error) {
-    console.error('❌ Error seeding database:', error)
+    console.error('[ERROR] Error seeding database:', error)
     throw error
   }
 }

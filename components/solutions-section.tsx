@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, Zap, Check } from 'lucide-react'
 
 interface Solution {
   id: number
@@ -77,7 +77,7 @@ export function SolutionsSection({ solutions }: SolutionsSectionProps) {
                       <ul className="space-y-2">
                         {solution.benefits.split(',').map((benefit, idx) => (
                           <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground">
-                            <span className="text-accent font-bold mt-0.5 flex-shrink-0">✓</span>
+                            <Check size={15} className="text-accent mt-0.5 flex-shrink-0" />
                             <span>{benefit.trim()}</span>
                           </li>
                         ))}

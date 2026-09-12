@@ -3,6 +3,10 @@ import {
   heroSlides,
   productCategories,
   products,
+  brands,
+  departments,
+  productDepartments,
+  productSpecs,
   solutions,
   clients,
   teamMembers,
@@ -12,7 +16,13 @@ import {
   partners,
   resources,
   quoteRequests,
+  quoteItems,
+  orders,
+  orderItems,
+  customers,
+  customerAddresses,
 } from '@/lib/db/schema'
+import { inArray } from 'drizzle-orm'
 import { eq, desc, like, or, and } from 'drizzle-orm'
 
 // ─── RICH FALLBACK / DUMMY DATABASE DATA FOR NETLIFY DEPLOYMENTS ───────────────
@@ -27,6 +37,16 @@ const MOCK_SITE_SETTINGS: Record<string, string> = {
   primary_color: '#2563eb',
   hero_title: 'Advanced Electrical & Critical Power Infrastructure',
   hero_subtitle: 'Engineered for reliability, sustainability, and industrial growth',
+  delivery_methods: JSON.stringify([
+    { id: 'nairobi', name: 'Nairobi Delivery', cost: 500, note: 'Within Nairobi & environs (1-3 days)' },
+    { id: 'countrywide', name: 'Countrywide Delivery', cost: 1500, note: 'Nationwide via courier (2-5 days)' },
+    { id: 'pickup', name: 'Collection Point / Pickup', cost: 0, note: 'Pick up at our Nairobi office' },
+  ]),
+  payment_methods: JSON.stringify([
+    { id: 'mpesa', name: 'M-Pesa / Mobile Money', instructions: 'Pay via M-Pesa paybill. Reference details will be sent on WhatsApp.' },
+    { id: 'bank', name: 'Bank Transfer', instructions: 'Bank details will be shared on confirmation via WhatsApp.' },
+    { id: 'card', name: 'Card Payment', instructions: 'Secure card payment link will be sent to your email.' },
+  ]),
 }
 
 const MOCK_HERO_SLIDES = [
@@ -66,11 +86,30 @@ const MOCK_HERO_SLIDES = [
 ]
 
 const MOCK_CATEGORIES = [
-  { id: 1, slug: 'electrical-works', name: 'Electrical Works', description: 'High voltage installations, critical power, and switchgear', icon: '⚡', color: '#1d4ed8', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
-  { id: 2, slug: 'ict-infrastructure', name: 'ICT Infrastructure', description: 'Data centre design, DCIM monitoring, and server room setups', icon: '🖥️', color: '#0891b2', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
-  { id: 3, slug: 'renewable-energy', name: 'Renewable Energy', description: 'Industrial solar installations, battery backups, and inverters', icon: '☀️', color: '#d97706', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
-  { id: 4, slug: 'software-security', name: 'Software & Security', description: 'Struxureware, cybersecurity, and environmental monitoring', icon: '🔒', color: '#7c3aed', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
-  { id: 5, slug: 'generators-backup', name: 'Generators & Backup', description: 'Diesel generators, automatic transfer switches, and fuel systems', icon: '🔋', color: '#059669', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
+  { id: 1, slug: 'electrical-works', name: 'Electrical Works', description: 'High voltage installations, critical power, and switchgear', icon: 'zap', color: '#1d4ed8', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
+  { id: 2, slug: 'ict-infrastructure', name: 'ICT Infrastructure', description: 'Data centre design, DCIM monitoring, and server room setups', icon: 'server', color: '#0891b2', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
+  { id: 3, slug: 'renewable-energy', name: 'Renewable Energy', description: 'Industrial solar installations, battery backups, and inverters', icon: 'sun', color: '#d97706', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
+  { id: 4, slug: 'software-security', name: 'Software & Security', description: 'Struxureware, cybersecurity, and environmental monitoring', icon: 'lock', color: '#7c3aed', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
+  { id: 5, slug: 'generators-backup', name: 'Generators & Backup', description: 'Diesel generators, automatic transfer switches, and fuel systems', icon: 'battery-charging', color: '#059669', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
+]
+
+// The seven official GlobalSpec engineering departments
+const MOCK_DEPARTMENTS = [
+  { id: 1, slug: 'electrical-works', name: 'Electrical Works', mainFunction: 'Electrical distribution, lighting, grounding and controls.', description: 'From LV/MV distribution to switchgear installation, our electrical engineers deliver safe, code-compliant power systems for industrial and commercial facilities.', capabilities: 'Power Distribution, Lighting Design, Earthing & Grounding, Motor Control Centres, Electrical Safety Audits', icon: 'zap', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&auto=format&fit=crop&q=80', orderPosition: 0, isActive: true },
+  { id: 2, slug: 'mechanical-cooling', name: 'Mechanical & Cooling Systems', mainFunction: 'HVAC, precision cooling, plumbing and mechanical services.', description: 'Precision cooling for data centres, HVAC design and installation, and mechanical services that keep critical facilities within operating envelopes.', capabilities: 'HVAC Engineering, Precision Cooling, Chilled Water Systems, Plumbing Services, Mechanical Maintenance', icon: 'snowflake', imageUrl: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1200&auto=format&fit=crop&q=80', orderPosition: 1, isActive: true },
+  { id: 3, slug: 'ict-infrastructure', name: 'ICT Infrastructure & Data Centers', mainFunction: 'Network infrastructure, cabling, server rooms and data centers.', description: 'Structured cabling, server room builds, and full data centre implementations managed with DCIM and environmental monitoring.', capabilities: 'Structured Cabling, Server Rack Installation, Data Centre Design, DCIM Monitoring, Network Infrastructure', icon: 'server', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&auto=format&fit=crop&q=80', orderPosition: 2, isActive: true },
+  { id: 4, slug: 'security-systems', name: 'Security Systems & Applications', mainFunction: 'CCTV, access control, alarms and integrated security.', description: 'Integrated physical security: video surveillance, access control, intrusion detection, and monitoring tied into facility management platforms.', capabilities: 'CCTV Surveillance, Access Control, Intrusion Alarms, Video Analytics, Integrated Security Platforms', icon: 'shield', imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&auto=format&fit=crop&q=80', orderPosition: 3, isActive: true },
+  { id: 5, slug: 'renewable-energy', name: 'Renewable Energy', mainFunction: 'Solar, wind, energy storage and microgrid solutions.', description: 'Commercial and industrial solar PV, battery energy storage, hybrid inverters, and microgrid engineering for energy independence.', capabilities: 'Solar PV Systems, Battery Energy Storage, Hybrid Inverters, Microgrids, Energy Efficiency Audits', icon: 'sun', imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&auto=format&fit=crop&q=80', orderPosition: 4, isActive: true },
+  { id: 6, slug: 'critical-power', name: 'Critical Power & Backup Systems', mainFunction: 'UPS, generators, batteries and redundant power infrastructure.', description: 'Uninterruptible power supplies, diesel generators, ATS, and battery rooms engineered for zero-downtime critical operations.', capabilities: 'UPS Systems, Diesel Generators, ATS & Switchgear, Battery Rooms, Redundant Power Design', icon: 'battery-charging', imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&auto=format&fit=crop&q=80', orderPosition: 5, isActive: true },
+  { id: 7, slug: 'building-works', name: 'Building Works', mainFunction: 'Renovation, refurbishment and minor building works.', description: 'Civil support for technical installations: refurbishment, containment, partitioning, and finishes that complement engineered systems.', capabilities: 'Renovation, Refurbishment, Partitioning, Cable Containment, Finishing Works', icon: 'building', imageUrl: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200&auto=format&fit=crop&q=80', orderPosition: 6, isActive: true },
+]
+
+const MOCK_BRANDS = [
+  { id: 1, slug: 'schneider-electric', name: 'Schneider Electric', logoUrl: '', websiteUrl: 'https://www.se.com', description: 'Energy management and automation.', isActive: true, orderPosition: 0, createdAt: new Date(), updatedAt: new Date() },
+  { id: 2, slug: 'apc', name: 'APC by Schneider Electric', logoUrl: '', websiteUrl: 'https://www.apc.com', description: 'UPS and critical power infrastructure.', isActive: true, orderPosition: 1, createdAt: new Date(), updatedAt: new Date() },
+  { id: 3, slug: 'huawei-solar', name: 'Huawei Solar', logoUrl: '', websiteUrl: 'https://solar.huawei.com', description: 'Smart string inverters and ESS.', isActive: true, orderPosition: 2, createdAt: new Date(), updatedAt: new Date() },
+  { id: 4, slug: 'eaton', name: 'Eaton', logoUrl: '', websiteUrl: 'https://www.eaton.com', description: 'Power management and UPS systems.', isActive: true, orderPosition: 3, createdAt: new Date(), updatedAt: new Date() },
+  { id: 5, slug: 'cisco', name: 'Cisco', logoUrl: '', websiteUrl: 'https://www.cisco.com', description: 'Enterprise networking.', isActive: true, orderPosition: 4, createdAt: new Date(), updatedAt: new Date() },
 ]
 
 const MOCK_SERVICES = [
@@ -360,6 +399,77 @@ export async function getProductBySlug(slug: string) {
   }
 }
 
+// Brands
+export async function getBrands() {
+  try {
+    const res = await db.select().from(brands).where(eq(brands.isActive, true)).orderBy(brands.orderPosition)
+    if (res && res.length > 0) return res
+    return MOCK_BRANDS
+  } catch {
+    return MOCK_BRANDS
+  }
+}
+
+// Departments
+export async function getDepartments() {
+  try {
+    const res = await db.select().from(departments).where(eq(departments.isActive, true)).orderBy(departments.orderPosition)
+    if (res && res.length > 0) return res
+    return MOCK_DEPARTMENTS
+  } catch {
+    return MOCK_DEPARTMENTS
+  }
+}
+
+export async function getDepartmentBySlug(slug: string) {
+  try {
+    const res = await db.select().from(departments).where(eq(departments.slug, slug)).limit(1)
+    if (res && res[0]) return res[0]
+    return MOCK_DEPARTMENTS.find((d) => d.slug === slug) || null
+  } catch {
+    return MOCK_DEPARTMENTS.find((d) => d.slug === slug) || null
+  }
+}
+
+// Product departments (many-to-many)
+export async function getProductDepartments(productId: number) {
+  try {
+    const links = await db.select().from(productDepartments).where(eq(productDepartments.productId, productId))
+    if (links.length === 0) return []
+    const ids = links.map((l) => l.departmentId)
+    return await db.select().from(departments).where(and(inArray(departments.id, ids), eq(departments.isActive, true)))
+  } catch {
+    return []
+  }
+}
+
+export async function getProductsByDepartment(departmentSlug: string) {
+  try {
+    const dep = await getDepartmentBySlug(departmentSlug)
+    if (!dep) return []
+    const links = await db.select().from(productDepartments).where(eq(productDepartments.departmentId, dep.id))
+    if (links.length === 0) return []
+    const ids = links.map((l) => l.productId)
+    return await db
+      .select()
+      .from(products)
+      .where(and(inArray(products.id, ids), eq(products.isActive, true)))
+      .orderBy(products.orderPosition)
+  } catch {
+    return []
+  }
+}
+
+// Dynamic product specifications
+export async function getProductSpecs(productId: number) {
+  try {
+    const res = await db.select().from(productSpecs).where(eq(productSpecs.productId, productId)).orderBy(productSpecs.orderPosition)
+    return res || []
+  } catch {
+    return []
+  }
+}
+
 // Solutions & Services
 export async function getSolutions() {
   try {
@@ -481,5 +591,190 @@ export async function getSiteSettings(): Promise<Record<string, string>> {
     return settingsMap
   } catch {
     return MOCK_SITE_SETTINGS
+  }
+}
+
+// ─── CHECKOUT CONFIG (configurable via admin settings) ────────────────────────
+
+export interface DeliveryMethod {
+  id: string
+  name: string
+  cost: number
+  note?: string
+}
+
+export interface PaymentMethod {
+  id: string
+  name: string
+  instructions?: string
+}
+
+function parseJsonArray(value: string | undefined, fallback: any[]): any[] {
+  if (!value) return fallback
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : fallback
+  } catch {
+    return fallback
+  }
+}
+
+export async function getDeliveryMethods(): Promise<DeliveryMethod[]> {
+  const settings = await getSiteSettings()
+  const fallback = parseJsonArray(MOCK_SITE_SETTINGS.delivery_methods, [])
+  return parseJsonArray(settings.delivery_methods, fallback)
+}
+
+export async function getPaymentMethods(): Promise<PaymentMethod[]> {
+  const settings = await getSiteSettings()
+  const fallback = parseJsonArray(MOCK_SITE_SETTINGS.payment_methods, [])
+  return parseJsonArray(settings.payment_methods, fallback)
+}
+
+// ─── CUSTOMERS & ACCOUNTS ──────────────────────────────────────────────────────
+
+export async function getCustomerByEmail(email: string) {
+  if (!email) return null
+  try {
+    const rows = await db.select().from(customers).where(eq(customers.email, email))
+    return rows[0] || null
+  } catch {
+    return null
+  }
+}
+
+export async function getCustomerByUser(userId: string) {
+  if (!userId) return null
+  try {
+    const rows = await db.select().from(customers).where(eq(customers.userId, userId))
+    return rows[0] || null
+  } catch {
+    return null
+  }
+}
+
+export async function getCustomerById(id: number) {
+  try {
+    const rows = await db.select().from(customers).where(eq(customers.id, id))
+    return rows[0] || null
+  } catch {
+    return null
+  }
+}
+
+export async function getOrCreateCustomer(input: {
+  userId?: string | null
+  name: string
+  email: string
+  phone?: string | null
+  company?: string | null
+}) {
+  const existing = await getCustomerByEmail(input.email)
+  if (existing) {
+    if (!existing.userId && input.userId) {
+      await db.update(customers).set({ userId: input.userId }).where(eq(customers.id, existing.id))
+    }
+    return existing
+  }
+  const [inserted] = await db
+    .insert(customers)
+    .values({
+      userId: input.userId || null,
+      name: input.name,
+      email: input.email,
+      phone: input.phone || null,
+      company: input.company || null,
+    })
+  const id = inserted.insertId
+  const [row] = await db.select().from(customers).where(eq(customers.id, id))
+  return row
+}
+
+export async function getCustomerAddresses(customerId: number) {
+  try {
+    const rows = await db
+      .select()
+      .from(customerAddresses)
+      .where(eq(customerAddresses.customerId, customerId))
+      .orderBy(desc(customerAddresses.isDefault))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getOrdersByCustomer(customerId: number) {
+  try {
+    const rows = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.customerId, customerId))
+      .orderBy(desc(orders.createdAt))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getOrdersByEmail(email: string) {
+  try {
+    const rows = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.customerEmail, email))
+      .orderBy(desc(orders.createdAt))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getOrderItemsByOrderId(orderId: number) {
+  try {
+    const rows = await db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getQuotesByCustomer(customerId: number) {
+  try {
+    const rows = await db
+      .select()
+      .from(quoteRequests)
+      .where(eq(quoteRequests.customerId, customerId))
+      .orderBy(desc(quoteRequests.createdAt))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getQuotesByEmail(email: string) {
+  try {
+    const rows = await db
+      .select()
+      .from(quoteRequests)
+      .where(eq(quoteRequests.customerEmail, email))
+      .orderBy(desc(quoteRequests.createdAt))
+    return rows || []
+  } catch {
+    return []
+  }
+}
+
+export async function getQuoteItemsByQuoteId(quoteId: number) {
+  try {
+    const rows = await db
+      .select()
+      .from(quoteItems)
+      .where(eq(quoteItems.quoteRequestId, quoteId))
+    return rows || []
+  } catch {
+    return []
   }
 }

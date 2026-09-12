@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lightbulb } from 'lucide-react'
+import { CategoryIcon } from '@/components/category-icon'
 
 interface Service {
   id: number
@@ -15,15 +16,6 @@ interface ServicesShowcaseProps {
 }
 
 export function ServicesShowcase({ services }: ServicesShowcaseProps) {
-  const getIconComponent = (iconName?: string) => {
-    switch (iconName) {
-      case 'zap':
-        return <Lightbulb className="w-8 h-8" />
-      default:
-        return <Lightbulb className="w-8 h-8" />
-    }
-  }
-
   return (
     <section className="py-16 bg-card/30">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -50,7 +42,7 @@ export function ServicesShowcase({ services }: ServicesShowcaseProps) {
               >
                 <CardHeader className="pb-3">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-                    {getIconComponent(service.icon)}
+                    <CategoryIcon name={service.icon} className="w-6 h-6" fallback={Lightbulb} />
                   </div>
                   <CardTitle className="text-lg">{service.name}</CardTitle>
                 </CardHeader>

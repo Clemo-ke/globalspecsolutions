@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { MainHeader } from '@/components/main-header'
 import { getPartners, getSiteSettings } from '@/lib/db-data'
-import { ExternalLink, ArrowRight, ShieldCheck } from 'lucide-react'
+import { ExternalLink, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 
 export default async function PartnersPage() {
   const [partnersList, siteSettings] = await Promise.all([getPartners(), getSiteSettings()])
@@ -66,8 +66,9 @@ export default async function PartnersPage() {
                       {partner.category || 'Technology Partner'}
                     </span>
                     {partner.isFeatured && (
-                      <span className="text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
-                        ⭐ Official OEM
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                        <Star size={11} />
+                        Official OEM
                       </span>
                     )}
                   </div>

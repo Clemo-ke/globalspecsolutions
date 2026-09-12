@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, Zap, Check } from 'lucide-react'
 import { getSolutions } from '@/app/actions/content'
 
 export const dynamic = 'force-dynamic'
@@ -73,7 +73,7 @@ export default async function SolutionsPage() {
                           <ul className="space-y-2">
                             {solution.benefits.split(',').slice(0, 4).map((benefit, idx) => (
                               <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground">
-                                <span className="text-accent font-bold mt-0.5 flex-shrink-0">✓</span>
+                                <Check size={15} className="text-accent mt-0.5 flex-shrink-0" />
                                 <span>{benefit.trim()}</span>
                               </li>
                             ))}
