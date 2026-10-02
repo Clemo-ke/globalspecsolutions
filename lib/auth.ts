@@ -40,6 +40,8 @@ export const auth = betterAuth({
     'http://localhost:3005',
     'http://162.35.96.178',
     'http://162.35.96.178:3005',
+    'https://global.clemwapms.com',
+    'http://global.clemwapms.com',
     ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
     ...(process.env.DEPLOY_URL ? [process.env.DEPLOY_URL] : []),

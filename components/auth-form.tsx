@@ -140,17 +140,44 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive font-medium bg-red-500/10 p-2.5 rounded-lg border border-red-500/20" role="alert">
+            <div className="text-xs text-destructive font-medium bg-red-500/10 p-2.5 rounded-lg border border-red-500/20" role="alert">
               {error}
-            </p>
+            </div>
           )}
 
           <Button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground font-bold">
             {loading ? 'Authenticating...' : isSignUp ? 'Create Account' : 'Sign in'}
           </Button>
+
+          {!isSignUp && (
+            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs space-y-2">
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                <span>Quick Demo Access</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Ready</span>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/auth/ensure-admin', { method: 'POST' })
+                  } catch {}
+                  setEmail('admin@globalspecsolutions.com')
+                  setPassword('Admin@123456!')
+                  setError(null)
+                }}
+                className="w-full py-1.5 px-2.5 text-xs text-left font-medium bg-white dark:bg-slate-800 hover:bg-primary/5 hover:border-primary/40 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between transition-colors"
+              >
+                <div>
+                  <div className="font-bold text-foreground">Admin Portal Demo</div>
+                  <div className="text-[10px] text-muted-foreground">admin@globalspecsolutions.com</div>
+                </div>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded">Auto-fill →</span>
+              </button>
+            </div>
+          )}
         </form>
 
-        <div className="mt-5 pt-4 border-t border-border text-center text-sm text-muted-foreground">
+        <div className="mt-4 pt-3 border-t border-border text-center text-xs text-muted-foreground">
           {isSignUp ? (
             <>
               Already have an account?{' '}

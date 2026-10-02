@@ -19,9 +19,47 @@ import {
   contactMessages,
   quoteRequests,
   quoteItems,
+  user,
+  account,
 } from './db/schema'
 import { eq } from 'drizzle-orm'
 import { ensureDefaultRoles } from './permissions'
+import { hashPassword } from 'better-auth/crypto'
+
+export async function ensureDefaultAdminUser() {
+  const adminEmail = 'admin@globalspecsolutions.com'
+  try {
+    const existing = await db.select().from(user).where(eq(user.email, adminEmail)).limit(1)
+    if (existing.length === 0) {
+      const userId = crypto.randomUUID()
+      const accountId = crypto.randomUUID()
+      const passwordHash = await hashPassword('Admin@123456!')
+
+      await db.insert(user).values({
+        id: userId,
+        email: adminEmail,
+        name: 'System Administrator',
+        role: 'super-admin',
+        emailVerified: true,
+      })
+
+      await db.insert(account).values({
+        id: accountId,
+        userId: userId,
+        accountId: userId,
+        providerId: 'credential',
+        password: passwordHash,
+      })
+      console.log('[OK] Default admin user seeded: admin@globalspecsolutions.com / Admin@123456!')
+    } else {
+      if (existing[0].role !== 'super-admin' && existing[0].role !== 'admin') {
+        await db.update(user).set({ role: 'super-admin' }).where(eq(user.email, adminEmail))
+      }
+    }
+  } catch (err) {
+    console.error('[WARN] Could not seed admin user:', err)
+  }
+}
 
 export async function seedDatabase() {
   try {
@@ -30,6 +68,9 @@ export async function seedDatabase() {
     // ─── Roles & Permissions (Part 32) ──────────────────────────────────────
     await ensureDefaultRoles()
     console.log('[OK] Default roles & permissions seeded')
+
+    // ─── Default Admin Account ───────────────────────────────────────────────
+    await ensureDefaultAdminUser()
 
     // ─── Site Settings ────────────────────────────────────────────────────────
     const initialSettings = [

@@ -96,7 +96,7 @@ export function CartClient() {
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
       <h1 className="text-3xl font-extrabold mb-8 flex items-center gap-3">
-        <ShoppingCart className="w-8 h-8 text-primary" /> Shopping Cart ({totalItems} items)
+        <ShoppingCart className="w-8 h-8 text-primary" /> Shopping Cart ({totalItems} {totalItems === 1 ? 'item' : 'items'})
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">

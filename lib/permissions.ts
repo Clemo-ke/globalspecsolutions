@@ -105,19 +105,23 @@ export const DEFAULT_ROLES: Array<{
 
 export async function ensureDefaultRoles() {
   for (const def of DEFAULT_ROLES) {
-    const existing = await db.select().from(roles).where(eq(roles.slug, def.slug)).limit(1)
-    if (existing.length > 0) continue
-    const [inserted] = await db.insert(roles).values({
-      slug: def.slug,
-      name: def.name,
-      description: def.description,
-      isAdmin: def.isAdmin,
-      isSystem: true,
-      orderPosition: DEFAULT_ROLES.indexOf(def),
-    })
-    const roleId = inserted.insertId
-    for (const perm of def.permissions) {
-      await db.insert(rolePermissions).values({ roleId, permission: perm })
+    try {
+      const existing = await db.select().from(roles).where(eq(roles.slug, def.slug)).limit(1)
+      if (existing.length > 0) continue
+      const [inserted] = await db.insert(roles).values({
+        slug: def.slug,
+        name: def.name,
+        description: def.description,
+        isAdmin: def.isAdmin,
+        isSystem: true,
+        orderPosition: DEFAULT_ROLES.indexOf(def),
+      })
+      const roleId = inserted.insertId
+      for (const perm of def.permissions) {
+        await db.insert(rolePermissions).values({ roleId, permission: perm }).catch(() => null)
+      }
+    } catch {
+      // Continue if already exists
     }
   }
 }

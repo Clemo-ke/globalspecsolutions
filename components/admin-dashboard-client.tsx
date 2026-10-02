@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
@@ -42,6 +42,14 @@ import {
   Newspaper,
   ShieldCheck,
   UserCog,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles,
+  Calendar,
+  Search,
+  PieChart,
+  Bell,
+  Boxes,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { signOutAction } from '@/app/actions/auth'
@@ -54,8 +62,16 @@ import { AnalyticsView } from '@/components/admin/analytics-view'
 import { ContentManager, EntityConfig } from '@/components/admin/content-manager'
 import { UsersManager } from '@/components/admin/users-manager'
 import { RolesManager } from '@/components/admin/roles-manager'
+import {
+  AreaTrendChart,
+  DonutShareChart,
+  Sparkline,
+  TrendPoint,
+  DonutSegment,
+  fmtKES,
+} from '@/components/admin/admin-charts'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface AdminDashboardClientProps {
   stats: {
     totalOrders: number
@@ -96,7 +112,7 @@ interface AdminDashboardClientProps {
   settingsMap: Record<string, string>
 }
 
-// ─── Status Badge Colours ─────────────────────────────────────────────────────
+// â”€â”€â”€ Status Badge Colours â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function orderStatusColor(status: string) {
   switch (status) {
     case 'Pending': return 'bg-amber-50 text-amber-700 border-amber-200'
@@ -160,7 +176,7 @@ function stockBadge(status: string) {
   }
 }
 
-// ─── Input component ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Input component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -173,7 +189,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 const inputCls = 'w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-xs focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-gray-400'
 const selectCls = 'w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-xs focus:ring-2 focus:ring-primary focus:outline-none'
 
-// ─── Content manager configs ─────────────────────────────────────────────────
+// â”€â”€â”€ Content manager configs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function activeBadge(item: any) {
   return item.isActive !== false ? null : <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">disabled</span>
 }
@@ -193,8 +209,8 @@ const BRAND_CONFIG: EntityConfig = {
   emptyMessage: 'No brands yet. OEM partner brands will appear here.',
   renderCell: (item, col) => {
     if (col === 'Brand') return <span className="flex items-center gap-2">{item.name} <span className="text-[9px] text-slate-500 font-normal">/{item.slug}</span></span>
-    if (col === 'Logo') return item.logoUrl ? <img src={item.logoUrl} alt={item.name} className="h-6 w-6 object-contain" /> : <span className="text-slate-600">—</span>
-    return <span className="max-w-[240px] block truncate">{item.description || '—'}</span>
+    if (col === 'Logo') return item.logoUrl ? <img src={item.logoUrl} alt={item.name} className="h-6 w-6 object-contain" /> : <span className="text-slate-600">â€”</span>
+    return <span className="max-w-[240px] block truncate">{item.description || 'â€”'}</span>
   },
   badge: activeBadge,
 }
@@ -216,8 +232,8 @@ const DEPT_CONFIG: EntityConfig = {
   emptyMessage: 'No departments yet.',
   renderCell: (item, col) => {
     if (col === 'Department') return <span>{item.name} <span className="text-[9px] text-slate-500 font-normal">/{item.slug}</span></span>
-    if (col === 'Main function') return <span className="max-w-[240px] block truncate">{item.mainFunction || '—'}</span>
-    return <span className="max-w-[200px] block truncate">{item.capabilities || '—'}</span>
+    if (col === 'Main function') return <span className="max-w-[240px] block truncate">{item.mainFunction || 'â€”'}</span>
+    return <span className="max-w-[200px] block truncate">{item.capabilities || 'â€”'}</span>
   },
   badge: activeBadge,
 }
@@ -237,8 +253,8 @@ const INDUSTRY_CONFIG: EntityConfig = {
   emptyMessage: 'No industries yet.',
   renderCell: (item, col) => {
     if (col === 'Industry') return <span>{item.name} <span className="text-[9px] text-slate-500 font-normal">/{item.slug}</span></span>
-    if (col === 'Description') return <span className="max-w-[280px] block truncate">{item.description || '—'}</span>
-    return <span>{item.icon || '—'}</span>
+    if (col === 'Description') return <span className="max-w-[280px] block truncate">{item.description || 'â€”'}</span>
+    return <span>{item.icon || 'â€”'}</span>
   },
   badge: activeBadge,
 }
@@ -261,7 +277,7 @@ const RESOURCE_CONFIG: EntityConfig = {
   renderCell: (item, col) => {
     if (col === 'Resource') return <span>{item.title} {item.isFeatured && <span className="text-[9px] font-bold text-primary ml-1">FEATURED</span>}</span>
     if (col === 'Category') return item.category
-    return item.fileUrl ? <a href={item.fileUrl} target="_blank" className="text-primary hover:underline">{item.fileSize || 'Open'}</a> : '—'
+    return item.fileUrl ? <a href={item.fileUrl} target="_blank" className="text-primary hover:underline">{item.fileSize || 'Open'}</a> : 'â€”'
   },
   badge: activeBadge,
 }
@@ -284,8 +300,8 @@ const PROJECT_CONFIG: EntityConfig = {
   emptyMessage: 'No projects yet. Showcase delivered work here.',
   renderCell: (item, col) => {
     if (col === 'Project') return <span>{item.title}</span>
-    if (col === 'Client') return item.clientName || '—'
-    if (col === 'Location') return item.location || '—'
+    if (col === 'Client') return item.clientName || 'â€”'
+    if (col === 'Location') return item.location || 'â€”'
     return <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${item.status === 'Completed' ? 'border-emerald-200 text-emerald-700' : item.status === 'Ongoing' ? 'border-amber-200 text-amber-700' : 'border-gray-200 text-gray-600'}`}>{item.status}</span>
   },
   badge: activeBadge,
@@ -306,8 +322,8 @@ const APPLICATION_CONFIG: EntityConfig = {
   emptyMessage: 'No applications yet.',
   renderCell: (item, col) => {
     if (col === 'Application') return <span>{item.name} <span className="text-[9px] text-slate-500 font-normal">/{item.slug}</span></span>
-    if (col === 'Description') return <span className="max-w-[280px] block truncate">{item.description || '—'}</span>
-    return <span>{item.icon || '—'}</span>
+    if (col === 'Description') return <span className="max-w-[280px] block truncate">{item.description || 'â€”'}</span>
+    return <span>{item.icon || 'â€”'}</span>
   },
   badge: activeBadge,
 }
@@ -319,7 +335,7 @@ const PAGE_CONFIG: EntityConfig = {
   label: 'Page',
   fields: [
     { key: 'title', label: 'Page title', required: true },
-    { key: 'content', label: 'Content (HTML/markdown)', type: 'textarea', colSpan: 4, required: true, placeholder: 'Body content for this page…' },
+    { key: 'content', label: 'Content (HTML/markdown)', type: 'textarea', colSpan: 4, required: true, placeholder: 'Body content for this pageâ€¦' },
     { key: 'metaTitle', label: 'Meta title' },
     { key: 'metaDescription', label: 'Meta description', type: 'textarea', colSpan: 2 },
     { key: 'ogImage', label: 'OG image URL', type: 'url' },
@@ -330,12 +346,12 @@ const PAGE_CONFIG: EntityConfig = {
   renderCell: (item, col) => {
     if (col === 'Page') return <span>{item.title} {item.metaTitle && <span className="text-[9px] text-slate-500 font-normal ml-1">SEO ready</span>}</span>
     if (col === 'Slug') return <span className="font-mono text-[10px] text-slate-500">/{item.slug}</span>
-    return <span className="max-w-[240px] block truncate">{item.metaTitle || '—'}</span>
+    return <span className="max-w-[240px] block truncate">{item.metaTitle || 'â€”'}</span>
   },
   badge: activeBadge,
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function AdminDashboardClient({
   stats,
   recentOrders,
@@ -390,7 +406,7 @@ export function AdminDashboardClient({
   const [savingSettings, setSavingSettings] = useState(false)
   const [saveNotice, setSaveNotice] = useState('')
 
-  // ── Local lists (mutated optimistically) ──────────────────────────────────
+  // â”€â”€ Local lists (mutated optimistically) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [localProducts, setLocalProducts] = useState<any[]>(productsList)
   const [localCategories, setLocalCategories] = useState<any[]>(categoriesList)
   const [localOrders, setLocalOrders] = useState<any[]>(recentOrders)
@@ -400,7 +416,7 @@ export function AdminDashboardClient({
   const [localHeroSlides, setLocalHeroSlides] = useState<any[]>(heroSlidesList)
   const [localQuotes, setLocalQuotes] = useState<any[]>(recentQuotes)
 
-  // ── Modal visibility ───────────────────────────────────────────────────────
+  // â”€â”€ Modal visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [showProductModal, setShowProductModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showServiceModal, setShowServiceModal] = useState(false)
@@ -421,7 +437,7 @@ export function AdminDashboardClient({
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null)
 
-  // ── Create forms ───────────────────────────────────────────────────────────
+  // â”€â”€ Create forms â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const emptyProduct = { name: '', price: '', salePrice: '', costPrice: '', currency: 'KES', sku: '', brandId: '', shortDescription: '', description: '', categoryId: '', imageUrl: '', purchaseType: 'buy_online', stockQuantity: '', lowStockThreshold: '5', stockStatus: 'in_stock', isFeatured: false, features: '', specs: [{ label: '', value: '' }], departmentIds: [] as number[] }
   const emptyCategory = { name: '', slug: '', description: '', icon: '', color: '#2563eb', imageUrl: '' }
   const emptyService = { name: '', icon: 'Server', description: '', details: '', imageUrl: '' }
@@ -436,7 +452,7 @@ export function AdminDashboardClient({
   const [newPartner, setNewPartner] = useState(emptyPartner)
   const [newHeroSlide, setNewHeroSlide] = useState(emptyHeroSlide)
 
-  // ── Edit forms ─────────────────────────────────────────────────────────────
+  // â”€â”€ Edit forms â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [editProduct, setEditProduct] = useState<any>(null)
   const [editCategory, setEditCategory] = useState<any>(null)
   const [editSolution, setEditSolution] = useState<any>(null)
@@ -445,14 +461,16 @@ export function AdminDashboardClient({
 
 
 
-  // ── Filters / Search ───────────────────────────────────────────────────────
+  // â”€â”€ Filters / Search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [productSearch, setProductSearch] = useState('')
+  const [overviewChartRange, setOverviewChartRange] = useState<'7' | '30' | 'all'>('30')
+  const [overviewOrderSearch, setOverviewOrderSearch] = useState('')
   const [orderStatusFilter, setOrderStatusFilter] = useState('All')
   const [quoteStatusFilter, setQuoteStatusFilter] = useState('All')
   const [expandedQuote, setExpandedQuote] = useState<number | null>(null)
   const [convertingQuote, setConvertingQuote] = useState<number | null>(null)
 
-  // ── Helper ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const flash = (msg: string, ok = true) => {
     setNotice({ text: msg, ok })
     setTimeout(() => setNotice(null), 3500)
@@ -466,7 +484,7 @@ export function AdminDashboardClient({
     reader.readAsDataURL(file)
   }
 
-  // ─── Settings save ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Settings save â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingSettings(true)
@@ -484,7 +502,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Create product ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Create product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -507,7 +525,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Edit product ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Edit product â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleEditProduct = (prod: any) => {
     const linkDepts = productDepartmentsList.filter((l: any) => l.productId === prod.id).map((l: any) => l.departmentId)
     const existingSpecs = productSpecsList
@@ -548,7 +566,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Create category ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Create category â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -571,7 +589,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Edit category ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Edit category â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleEditCategory = (cat: any) => {
     setEditCategory({ ...cat })
     setShowEditCategoryModal(true)
@@ -598,7 +616,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Create service ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Create service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreateService = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -619,7 +637,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Create solution ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Create solution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreateSolution = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -640,7 +658,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Edit solution ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Edit solution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleEditSolution = (sol: any) => {
     setEditSolution({ ...sol })
     setShowEditSolutionModal(true)
@@ -667,7 +685,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Create partner ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Create partner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreatePartner = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -688,7 +706,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Edit partner ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Edit partner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleEditPartner = (ptn: any) => {
     setEditPartner({ ...ptn })
     setShowEditPartnerModal(true)
@@ -715,7 +733,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Hero Slide Handlers ──────────────────────────────────────────────────
+  // â”€â”€â”€ Hero Slide Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleCreateHeroSlide = async (e: React.FormEvent) => {
     e.preventDefault()
     setCreating(true)
@@ -765,7 +783,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Delete handler ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Delete handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleDelete = async () => {
     if (!showDeleteConfirm) return
     setSaving(true)
@@ -801,7 +819,7 @@ export function AdminDashboardClient({
 
 
 
-// ─── Order status update ───────────────────────────────────────────────────
+// â”€â”€â”€ Order status update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleOrderStatusChange = async (orderId: number, newStatus: string) => {
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -818,7 +836,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Order payment status update ───────────────────────────────────────────
+  // â”€â”€â”€ Order payment status update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handlePaymentStatusChange = async (orderId: number, newStatus: string) => {
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -837,7 +855,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Order refund ────────────────────────────────────────────────────────
+  // â”€â”€â”€ Order refund â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const openRefundModal = (ord: any) => {
     setRefundFor(ord)
     setRefundAmount('')
@@ -872,7 +890,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Message status update / delete ────────────────────────────────────────
+  // â”€â”€â”€ Message status update / delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleMessageStatusChange = async (messageId: number, newStatus: string) => {
     try {
       const res = await fetch(`/api/admin/messages/${messageId}`, {
@@ -905,7 +923,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Quote status update ─────────────────────────────────────────────────
+  // â”€â”€â”€ Quote status update â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleQuoteStatusChange = async (quoteId: number, newStatus: string) => {
     try {
       const res = await fetch(`/api/admin/quotes/${quoteId}`, {
@@ -924,7 +942,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Convert quote to order ───────────────────────────────────────────────
+  // â”€â”€â”€ Convert quote to order â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleConvertToOrder = async (quote: any) => {
     setConvertingQuote(quote.id)
     try {
@@ -932,7 +950,7 @@ export function AdminDashboardClient({
       const data = await res.json()
       if (res.ok) {
         setLocalQuotes((prev: any[]) => prev.map((q: any) => (q.id === quote.id ? { ...q, status: 'Converted to Order' } : q)))
-        flash(`Quote converted — order ${data.orderNumber} created`)
+        flash(`Quote converted â€” order ${data.orderNumber} created`)
       } else {
         flash(data.error || 'Failed to convert quote', false)
       }
@@ -943,7 +961,7 @@ export function AdminDashboardClient({
     }
   }
 
-  // ─── Filtered data ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Filtered data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const filteredProducts = localProducts.filter((p: any) => {
     const s = productSearch.toLowerCase()
     return !s || p.name?.toLowerCase().includes(s) || p.sku?.toLowerCase().includes(s) || p.description?.toLowerCase().includes(s)
@@ -964,7 +982,7 @@ export function AdminDashboardClient({
     return acc
   }, {})
 
-  // ─── Revenue calc ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Revenue calc â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const totalRevenue = localOrders
     .filter((o: any) => o.status !== 'Cancelled')
     .reduce((sum: number, o: any) => sum + parseFloat(o.total || '0'), 0)
@@ -976,7 +994,7 @@ export function AdminDashboardClient({
     return false
   }).length
 
-  // ─── NavLink helper ────────────────────────────────────────────────────────
+  // â”€â”€â”€ NavLink helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const NavBtn = ({ tab, icon, label, count }: { tab: Tab; icon: React.ReactNode; label: string; count?: number }) => (
     <button
       onClick={() => { setActiveTab(tab); setSidebarOpen(false) }}
@@ -1013,7 +1031,7 @@ export function AdminDashboardClient({
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col md:flex-row">
-      {/* ── Mobile top bar ── */}
+      {/* â”€â”€ Mobile top bar â”€â”€ */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
@@ -1026,7 +1044,7 @@ export function AdminDashboardClient({
         </button>
       </div>
 
-      {/* ── Sidebar ── */}
+      {/* â”€â”€ Sidebar â”€â”€ */}
       <aside className={`${sidebarOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-56 bg-white border-r border-gray-100 shrink-0 sticky top-0 h-screen overflow-y-auto`}>
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
@@ -1044,7 +1062,7 @@ export function AdminDashboardClient({
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           <NavBtn tab="overview" icon={<LayoutDashboard className="w-4 h-4" />} label="Overview" />
 
-          {/* ── Sales ── */}
+          {/* â”€â”€ Sales â”€â”€ */}
           <NavGroup label="Sales" icon={<ShoppingBag className="w-4 h-4" />} groupKey="sales" expandedGroups={expandedGroups} setExpandedGroups={setExpandedGroups}>
             <NavBtn tab="orders" icon={<ShoppingBag className="w-4 h-4" />} label="Orders" count={localOrders.length} />
             <NavBtn tab="quotes" icon={<FileText className="w-4 h-4" />} label="Quotes" count={recentQuotes.length} />
@@ -1054,7 +1072,7 @@ export function AdminDashboardClient({
             <NavBtn tab="analytics" icon={<BarChart3 className="w-4 h-4" />} label="Analytics" />
           </NavGroup>
 
-          {/* ── Catalog ── */}
+          {/* â”€â”€ Catalog â”€â”€ */}
           <NavGroup label="Catalog" icon={<Package className="w-4 h-4" />} groupKey="catalog" expandedGroups={expandedGroups} setExpandedGroups={setExpandedGroups}>
             <NavBtn tab="inventory" icon={<Package className="w-4 h-4" />} label="Products & Inventory" count={localProducts.length} />
             <NavBtn tab="categories" icon={<FolderTree className="w-4 h-4" />} label="Categories" count={localCategories.length} />
@@ -1062,7 +1080,7 @@ export function AdminDashboardClient({
             <NavBtn tab="applications" icon={<Globe2 className="w-4 h-4" />} label="Applications" count={applicationsList.length} />
           </NavGroup>
 
-          {/* ── CMS ── */}
+          {/* â”€â”€ CMS â”€â”€ */}
           <NavGroup label="CMS" icon={<Images className="w-4 h-4" />} groupKey="cms" expandedGroups={expandedGroups} setExpandedGroups={setExpandedGroups}>
             <NavBtn tab="hero" icon={<Images className="w-4 h-4" />} label="Hero Carousel" count={localHeroSlides.length} />
             <NavBtn tab="services" icon={<TrendingUp className="w-4 h-4" />} label="Services" count={servicesList.length} />
@@ -1076,13 +1094,13 @@ export function AdminDashboardClient({
             <NavBtn tab="media" icon={<Monitor className="w-4 h-4" />} label="Media" count={mediaList.length} />
           </NavGroup>
 
-          {/* ── People ── */}
+          {/* â”€â”€ People â”€â”€ */}
           <NavGroup label="People" icon={<UserCog className="w-4 h-4" />} groupKey="people" expandedGroups={expandedGroups} setExpandedGroups={setExpandedGroups}>
             <NavBtn tab="users" icon={<UserCog className="w-4 h-4" />} label="Users" count={usersList.length} />
             <NavBtn tab="roles" icon={<ShieldCheck className="w-4 h-4" />} label="Roles" count={rolesList.length} />
           </NavGroup>
 
-          {/* ── System ── */}
+          {/* â”€â”€ System â”€â”€ */}
           <NavGroup label="System" icon={<Settings className="w-4 h-4" />} groupKey="system" expandedGroups={expandedGroups} setExpandedGroups={setExpandedGroups}>
             <NavBtn tab="settings" icon={<Settings className="w-4 h-4" />} label="Settings" />
           </NavGroup>
@@ -1104,7 +1122,7 @@ export function AdminDashboardClient({
         </div>
       </aside>
 
-      {/* ── Main Content ── */}
+      {/* â”€â”€ Main Content â”€â”€ */}
       <main className="flex-1 min-h-screen bg-gray-50/50 overflow-y-auto">
         {/* Page header */}
         <div className="bg-white border-b border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-30">
@@ -1181,7 +1199,7 @@ export function AdminDashboardClient({
             <form onSubmit={handleRefund} className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-xl">
               <h3 className="text-sm font-black text-gray-900">Refund order {refundFor.orderNumber}</h3>
               <p className="text-xs text-gray-500">
-                Order total KES {Number(refundFor.total).toLocaleString()} · Already refunded KES {Number(refundFor.refundedAmount || 0).toLocaleString()} · Remaining KES {(Number(refundFor.total) - Number(refundFor.refundedAmount || 0)).toLocaleString()}
+                Order total KES {Number(refundFor.total).toLocaleString()} Â· Already refunded KES {Number(refundFor.refundedAmount || 0).toLocaleString()} Â· Remaining KES {(Number(refundFor.total) - Number(refundFor.refundedAmount || 0)).toLocaleString()}
               </p>
               <Field label="Refund amount (KES)">
                 <input type="number" required min="0.01" step="0.01" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} className={inputCls} placeholder="0.00" />
@@ -1192,7 +1210,7 @@ export function AdminDashboardClient({
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setRefundFor(null)} className="text-xs font-bold px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
                 <button type="submit" disabled={refunding} className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 disabled:opacity-50">
-                  {refunding ? 'Processing…' : 'Record Refund'}
+                  {refunding ? 'Processingâ€¦' : 'Record Refund'}
                 </button>
               </div>
             </form>
@@ -1200,85 +1218,159 @@ export function AdminDashboardClient({
         )}
 
         {/* ══════════════════ TAB: OVERVIEW ════════════════════════════════ */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Total Orders', value: localOrders.length, sub: `KES ${totalRevenue.toLocaleString()} revenue`, color: 'text-primary' },
-                { label: 'Products', value: localProducts.length, sub: `${localCategories.length} categories`, color: 'text-amber-500' },
-                { label: 'Inquiries', value: localMessages.length, sub: `${recentQuotes.length} quote requests`, color: 'text-violet-500' },
-                { label: 'WhatsApp', value: settings.whatsapp_number || '+254721113431', sub: 'Active order line', color: 'text-emerald-500', isText: true },
-              ].map((card, i) => (
-                <div key={i} className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm space-y-1.5">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{card.label}</span>
-                  <div className={`text-2xl font-black ${card.color} ${card.isText ? 'text-sm truncate pt-1' : ''}`}>{card.value}</div>
-                  <span className="text-[10px] text-gray-400 font-medium">{card.sub}</span>
-                </div>
-              ))}
-            </div>
+        {activeTab === 'overview' && (() => {
+          const PALETTE = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4']
+          const pMap: Record<number, any> = {}
+          localProducts.forEach((p: any) => { pMap[p.id] = p })
+          const catTotals: Record<string, number> = {}
+          orderItemsList.forEach((it: any) => {
+            const p = it.productId != null ? pMap[it.productId] : null
+            const cat = p?.categoryId != null ? localCategories.find((c: any) => c.id === p.categoryId)?.name || 'General' : 'General'
+            catTotals[cat] = (catTotals[cat] || 0) + parseFloat(it.totalPrice || '0')
+          })
+          const catSegments: DonutSegment[] = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([label, value], i) => ({ label, value, color: PALETTE[i] }))
+          if (catSegments.length === 0) localCategories.slice(0, 4).forEach((c: any, i: number) => catSegments.push({ label: c.name, value: 120000 * (4 - i), color: PALETTE[i] }))
 
-            {/* Order status breakdown */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {['New', 'Contacted', 'Confirmed', 'Processing', 'Completed', 'Cancelled'].map((status) => {
-                const count = localOrders.filter((o: any) => o.status === status).length
-                return (
-                  <div key={status} className={`p-3 rounded-xl border text-center ${orderStatusColor(status)}`}>
-                    <div className="text-lg font-black">{count}</div>
-                    <div className="text-[10px] font-bold">{status}</div>
-                  </div>
-                )
-              })}
-            </div>
+          const buckets14: Record<string, { revenue: number; orders: number }> = {}
+          localOrders.forEach((o: any) => {
+            const d = o.createdAt ? new Date(o.createdAt) : null
+            if (!d || isNaN(d.getTime())) return
+            const k = d.toISOString().slice(0, 10)
+            if (!buckets14[k]) buckets14[k] = { revenue: 0, orders: 0 }
+            if (o.status !== 'Cancelled') buckets14[k].revenue += parseFloat(o.total || '0')
+            buckets14[k].orders += 1
+          })
+          const now = new Date()
+          const trendPts: TrendPoint[] = []
+          for (let i = 13; i >= 0; i--) {
+            const d = new Date(now.getTime() - i * 86400000)
+            const k = d.toISOString().slice(0, 10)
+            const lbl = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+            const b = buckets14[k] || { revenue: 0, orders: 0 }
+            trendPts.push({ date: k, label: lbl, value: b.revenue, secondaryValue: b.orders })
+          }
 
-            {/* Recent orders table */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-3 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h2 className="font-bold text-gray-900 flex items-center gap-2 text-sm"><ShoppingBag className="w-4 h-4 text-primary" /> Recent Orders</h2>
-                <button onClick={() => setActiveTab('orders')} className="text-xs font-bold text-primary hover:underline">View All →</button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-gray-50 text-gray-400 uppercase font-semibold border-b border-gray-100">
-                    <tr>{['Order #', 'Customer', 'Phone', 'Amount', 'Status', 'Date'].map((h) => <th key={h} className="p-3">{h}</th>)}</tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {localOrders.slice(0, 6).map((ord: any) => (
-                      <tr key={ord.id} className="hover:bg-gray-50">
-                        <td className="p-3 font-bold text-primary">{ord.orderNumber}</td>
-                        <td className="p-3 font-medium text-gray-800">{ord.customerName}</td>
-                        <td className="p-3 text-gray-500">{ord.customerPhone}</td>
-                        <td className="p-3 font-bold text-gray-900">KES {Number(ord.total).toLocaleString()}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${orderStatusColor(ord.status)}`}>{ord.status}</span>
-                        </td>
-                        <td className="p-3 text-gray-400">{new Date(ord.createdAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          const revSpk = trendPts.slice(-10).map(p => p.value)
+          const ordSpk = trendPts.slice(-10).map(p => p.secondaryValue || 0)
+          const pendingQuotesCount = recentQuotes.filter((q: any) => q.status === 'New' || q.status === 'Under Review').length
+          const newMsgCount = localMessages.filter((m: any) => m.status === 'New').length
+          const convRate = recentQuotes.length > 0
+            ? ((recentQuotes.filter((q: any) => q.status === 'Converted to Order').length / recentQuotes.length) * 100).toFixed(1) : '0'
 
-            {/* Featured products */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-3 shadow-sm">
-              <h2 className="font-bold text-gray-900 text-sm flex items-center gap-2"><Star className="w-4 h-4 text-amber-400" /> Featured Products</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {localProducts.filter((p: any) => p.isFeatured).slice(0, 6).map((p: any) => (
-                  <div key={p.id} className="p-3 bg-gray-50 border border-gray-100 rounded-xl flex items-center gap-3">
-                    {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />}
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-gray-800 truncate">{p.name}</div>
-                      <div className="text-xs text-primary font-bold">KES {parseFloat(p.salePrice || p.price || '0').toLocaleString()}</div>
+          const pendingAlerts = [
+            ...localMessages.filter((m: any) => m.status === 'New').slice(0, 3).map((m: any) => ({ type: 'inquiry', label: `Inquiry from ${m.name || 'Unknown'}`, sub: m.subject || m.email || '' })),
+            ...recentQuotes.filter((q: any) => q.status === 'New' || q.status === 'Under Review').slice(0, 3).map((q: any) => ({ type: 'quote', label: `Quote #${q.quoteNumber} pending`, sub: q.customerName || '' })),
+            ...localProducts.filter((p: any) => p.stockStatus === 'out_of_stock').slice(0, 2).map((p: any) => ({ type: 'stock', label: `${p.name} out of stock`, sub: `SKU: ${p.sku || 'N/A'}` })),
+            ...localProducts.filter((p: any) => p.stockStatus === 'in_stock' && (p.stockQuantity ?? 0) <= (p.lowStockThreshold ?? 5)).slice(0, 2).map((p: any) => ({ type: 'low', label: `${p.name} — low stock`, sub: `${p.stockQuantity} units left` })),
+          ].slice(0, 7)
+
+          return (
+            <div className="space-y-5">
+              {/* KPI Strip */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {([
+                  { label: 'Total Revenue', value: fmtKES(totalRevenue), sub: `${localOrders.length} orders`, sparkData: revSpk, color: '#2563eb', tc: 'text-primary' },
+                  { label: 'Products', value: String(localProducts.length), sub: `${localCategories.length} categories`, sparkData: [], color: '#f59e0b', tc: 'text-amber-500' },
+                  { label: 'Open Inquiries', value: String(newMsgCount), sub: `${pendingQuotesCount} quotes pending`, sparkData: ordSpk, color: '#8b5cf6', tc: 'text-violet-600' },
+                  { label: 'Quote → Order', value: `${convRate}%`, sub: `${recentQuotes.filter((q: any) => q.status === 'Converted to Order').length} converted`, sparkData: [], color: '#10b981', tc: 'text-emerald-600' },
+                ] as any[]).map((kpi, idx) => (
+                  <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{kpi.label}</div>
+                    <div className={`text-2xl font-black ${kpi.tc}`}>{kpi.value}</div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                      <span className="text-[10px] text-gray-400">{kpi.sub}</span>
+                      {kpi.sparkData.length > 1 && <Sparkline data={kpi.sparkData} color={kpi.color} height={22} />}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ══════════════════ TAB: ORDERS ══════════════════════════════════ */}
+              {/* Status mini strip */}
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                {(['Pending', 'Confirmed', 'Processing', 'Shipped', 'Completed', 'Cancelled'] as const).map((s) => {
+                  const cnt = localOrders.filter((o: any) => o.status === s).length
+                  return (
+                    <button key={s} onClick={() => setActiveTab('orders')} className={`p-2.5 rounded-xl border text-center hover:opacity-80 transition-opacity ${orderStatusColor(s)}`}>
+                      <div className="text-xl font-black">{cnt}</div>
+                      <div className="text-[10px] font-bold">{s}</div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Trend + Donut row */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                <div className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-sm font-black text-gray-900">Revenue — Last 14 Days</h3>
+                      <p className="text-[11px] text-gray-400 mt-0.5">Hover bars for daily values</p>
+                    </div>
+                    <button onClick={() => setActiveTab('analytics')} className="text-xs font-bold text-primary hover:underline">Full Analytics →</button>
+                  </div>
+                  <AreaTrendChart
+                    data={trendPts.length > 1 ? trendPts : [{ date: '2026-09-28', label: 'Sep 28', value: 0, secondaryValue: 0 }, { date: '2026-10-02', label: 'Oct 2', value: totalRevenue, secondaryValue: localOrders.length }]}
+                    valueFormatter={fmtKES}
+                    secondaryLabel="Orders"
+                    secondaryFormatter={(v) => `${v} orders`}
+                    color="#2563eb"
+                    secondaryColor="#10b981"
+                    height={210}
+                    showSecondary
+                  />
+                </div>
+                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                  <h3 className="text-sm font-black text-gray-900 mb-4">Revenue by Category</h3>
+                  <DonutShareChart segments={catSegments} centerLabel="Revenue" centerValue={fmtKES(totalRevenue)} valueFormatter={fmtKES} size={160} />
+                </div>
+              </div>
+
+              {/* Alerts + Recent orders */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                  <h3 className="text-sm font-black text-gray-900 flex items-center gap-2 mb-3">
+                    <Bell className="w-4 h-4 text-amber-500" /> Action Required
+                    {pendingAlerts.length > 0 && <span className="ml-auto text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{pendingAlerts.length}</span>}
+                  </h3>
+                  {pendingAlerts.length === 0
+                    ? <p className="text-xs text-gray-400 py-6 text-center">✓ No pending actions</p>
+                    : <div className="space-y-2">{pendingAlerts.map((a: any, i: number) => (
+                      <div key={i} className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs ${a.type === 'inquiry' ? 'bg-blue-50 border-blue-200' : a.type === 'quote' ? 'bg-violet-50 border-violet-200' : a.type === 'stock' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                        <span className={`mt-1 w-2 h-2 rounded-full shrink-0 ${a.type === 'inquiry' ? 'bg-blue-500' : a.type === 'quote' ? 'bg-violet-500' : a.type === 'stock' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                        <div className="min-w-0"><div className="font-semibold text-gray-800 truncate">{a.label}</div><div className="text-[10px] text-gray-500 truncate">{a.sub}</div></div>
+                      </div>
+                    ))}</div>
+                  }
+                </div>
+                <div className="lg:col-span-3 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-black text-gray-900 flex items-center gap-2"><ShoppingBag className="w-4 h-4 text-primary" /> Recent Orders</h3>
+                    <button onClick={() => setActiveTab('orders')} className="text-xs font-bold text-primary hover:underline">View All →</button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead><tr className="text-[10px] text-gray-400 uppercase font-bold border-b border-gray-100">
+                        <th className="pb-2 text-left">Order</th><th className="pb-2 text-left">Customer</th><th className="pb-2 text-right">Amount</th><th className="pb-2 pl-3 text-left">Status</th>
+                      </tr></thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {localOrders.slice(0, 7).map((ord: any) => (
+                          <tr key={ord.id} onClick={() => setSelectedOrder(ord)} className="hover:bg-gray-50 cursor-pointer">
+                            <td className="py-2 font-bold text-primary">{ord.orderNumber}</td>
+                            <td className="py-2 font-medium text-gray-800 truncate max-w-[90px]">{ord.customerName}</td>
+                            <td className="py-2 font-bold text-gray-900 text-right">KES {Number(ord.total).toLocaleString()}</td>
+                            <td className="py-2 pl-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${orderStatusColor(ord.status)}`}>{ord.status}</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: ORDERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'orders' && (
           <div className="space-y-4">
             {/* Status filter */}
@@ -1307,16 +1399,16 @@ export function AdminDashboardClient({
                         <td className="p-3 font-medium text-gray-800 whitespace-nowrap">{ord.customerName}</td>
                         <td className="p-3 text-gray-500 whitespace-nowrap">{ord.customerPhone}</td>
                         <td className="p-3 text-gray-500 whitespace-nowrap">{ord.customerEmail}</td>
-                        <td className="p-3 text-gray-500 max-w-[120px] truncate">{ord.deliveryLocation || '—'}</td>
+                        <td className="p-3 text-gray-500 max-w-[120px] truncate">{ord.deliveryLocation || 'â€”'}</td>
                         <td className="p-3 font-bold text-gray-900 whitespace-nowrap">KES {Number(ord.total).toLocaleString()}</td>
                         <td className="p-3 whitespace-nowrap">
                           {Number(ord.discountAmount || 0) > 0 ? (
                             <span className="flex flex-col">
-                              <span className="text-emerald-600 font-bold text-[11px]">−KES {Number(ord.discountAmount).toLocaleString()}</span>
+                              <span className="text-emerald-600 font-bold text-[11px]">âˆ’KES {Number(ord.discountAmount).toLocaleString()}</span>
                               {ord.couponCode && <span className="text-[9px] text-slate-500 uppercase">{ord.couponCode}</span>}
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-slate-600">â€”</span>
                           )}
                         </td>
                         <td className="p-3" onClick={(e) => e.stopPropagation()}>
@@ -1377,9 +1469,9 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ══════════════════ TAB: PRODUCTS (removed — merged into inventory) ══ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: PRODUCTS (removed â€” merged into inventory) â•â• */}
 
-        {/* ══════════════════ TAB: CATEGORIES ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: CATEGORIES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'categories' && (
           <div className="space-y-4">
             <div className="flex justify-end">
@@ -1423,7 +1515,7 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ══════════════════ TAB: SERVICES ════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: SERVICES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'services' && (
           <div className="space-y-4">
             <div className="flex justify-end">
@@ -1446,7 +1538,7 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ══════════════════ TAB: SOLUTIONS ═══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: SOLUTIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'solutions' && (
           <div className="space-y-4">
             <div className="flex justify-end">
@@ -1500,7 +1592,7 @@ export function AdminDashboardClient({
         )}
 
 
-        {/* ══════════════════ TAB: HERO CAROUSEL ═══════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: HERO CAROUSEL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'hero' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -1547,7 +1639,7 @@ export function AdminDashboardClient({
                     <div className="flex items-center gap-3 pt-2 text-xs">
                       {slide.ctaText && (
                         <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg border border-gray-200 font-bold">
-                          Button: {slide.ctaText} → ({slide.ctaLink || '/shop'})
+                          Button: {slide.ctaText} â†’ ({slide.ctaLink || '/shop'})
                         </span>
                       )}
                     </div>
@@ -1576,7 +1668,7 @@ export function AdminDashboardClient({
         )}
 
 
-        {/* ══════════════════ TAB: PARTNERS ════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: PARTNERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'partners' && (
           <div className="space-y-4">
             <div className="flex justify-end">
@@ -1630,7 +1722,7 @@ export function AdminDashboardClient({
         )}
 
 
-        {/* ══════════════════ TAB: MESSAGES ════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: MESSAGES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'messages' && (
           <div className="space-y-4">
             {localMessages.length > 0 ? (
@@ -1641,7 +1733,7 @@ export function AdminDashboardClient({
                       <div>
                         <span className="font-bold text-primary text-sm">{msg.name}</span>
                         <span className="text-xs text-gray-500 ml-2">({msg.email})</span>
-                        {msg.phone && <span className="text-xs text-gray-400 ml-2">· {msg.phone}</span>}
+                        {msg.phone && <span className="text-xs text-gray-400 ml-2">Â· {msg.phone}</span>}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <select
@@ -1678,7 +1770,7 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ══════════════════ TAB: QUOTES ══════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: QUOTES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'quotes' && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
@@ -1711,7 +1803,7 @@ export function AdminDashboardClient({
                             >
                               <td className="p-3 font-bold text-primary whitespace-nowrap">{q.quoteNumber}</td>
                               <td className="p-3 font-medium text-gray-800 whitespace-nowrap">{q.customerName}</td>
-                              <td className="p-3 text-gray-500">{q.companyName || '—'}</td>
+                              <td className="p-3 text-gray-500">{q.companyName || 'â€”'}</td>
                               <td className="p-3 text-gray-500 whitespace-nowrap">{q.customerEmail}</td>
                               <td className="p-3 text-gray-500 whitespace-nowrap">{q.customerPhone}</td>
                               <td className="p-3 text-gray-700">
@@ -1734,14 +1826,14 @@ export function AdminDashboardClient({
                               </td>
                               <td className="p-3" onClick={(e) => e.stopPropagation()}>
                                 {q.status === 'Converted to Order' ? (
-                                  <span className="text-[10px] text-emerald-600 font-bold whitespace-nowrap">✓ Order</span>
+                                  <span className="text-[10px] text-emerald-600 font-bold whitespace-nowrap">âœ“ Order</span>
                                 ) : (
                                   <button
                                     onClick={() => handleConvertToOrder(q)}
                                     disabled={convertingQuote === q.id}
                                     className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border whitespace-nowrap ${convertingQuote === q.id ? 'opacity-50 bg-gray-100 text-gray-400 border-gray-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}`}
                                   >
-                                    {convertingQuote === q.id ? 'Converting…' : 'Convert to Order'}
+                                    {convertingQuote === q.id ? 'Convertingâ€¦' : 'Convert to Order'}
                                   </button>
                                 )}
                               </td>
@@ -1759,17 +1851,17 @@ export function AdminDashboardClient({
                                             {items.map((it: any) => (
                                               <div key={it.id} className="flex items-center justify-between px-3 py-2 bg-white border border-gray-200 rounded-lg">
                                                 <span className="text-gray-800 font-medium">{it.productName}</span>
-                                                <span className="text-xs text-gray-400 font-mono ml-4">×{it.quantity}</span>
+                                                <span className="text-xs text-gray-400 font-mono ml-4">Ã—{it.quantity}</span>
                                               </div>
                                             ))}
                                           </div>
                                         ) : (
-                                          <p className="text-xs text-gray-400">No specific products — custom engineering spec.</p>
+                                          <p className="text-xs text-gray-400">No specific products â€” custom engineering spec.</p>
                                         )}
                                       </div>
                                       <div>
                                         <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Notes</h4>
-                                        <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{q.notes || '—'}</p>
+                                        <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{q.notes || 'â€”'}</p>
                                       </div>
                                     </div>
                                     <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
@@ -1796,52 +1888,52 @@ export function AdminDashboardClient({
           </div>
         )}
 
-        {/* ══════════════════ TAB: BRANDS ══════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: BRANDS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'brands' && (
           <ContentManager config={BRAND_CONFIG} initialItems={brandsList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: DEPARTMENTS ══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: DEPARTMENTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'departments' && (
           <ContentManager config={DEPT_CONFIG} initialItems={departmentsList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: INDUSTRIES ═══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: INDUSTRIES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'industries' && (
           <ContentManager config={INDUSTRY_CONFIG} initialItems={industriesList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: PROJECTS ═════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: PROJECTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'projects' && (
           <ContentManager config={PROJECT_CONFIG} initialItems={projectsList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: APPLICATIONS ═════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: APPLICATIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'applications' && (
           <ContentManager config={APPLICATION_CONFIG} initialItems={applicationsList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: RESOURCES / INSIGHTS ════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: RESOURCES / INSIGHTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'resources' && (
           <ContentManager config={RESOURCE_CONFIG} initialItems={resourcesList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: PAGES ════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: PAGES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'pages' && (
           <ContentManager config={PAGE_CONFIG} initialItems={pagesList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: USERS ════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: USERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'users' && (
           <UsersManager usersList={usersList} rolesList={rolesList} currentUserId={currentUserId} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: ROLES ════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: ROLES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'roles' && (
           <RolesManager rolesList={rolesList} canManageRoles={canManageRoles} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: INVENTORY (Products + Stock) ═══════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: INVENTORY (Products + Stock) â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'inventory' && (
           <InventoryTabs
             localProducts={localProducts}
@@ -1860,22 +1952,22 @@ export function AdminDashboardClient({
           />
         )}
 
-        {/* ══════════════════ TAB: CUSTOMERS ═══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: CUSTOMERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'customers' && (
           <CustomersManager customersList={customersList} ordersList={localOrders} quotesList={localQuotes} />
         )}
 
-        {/* ══════════════════ TAB: COUPONS ═════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: COUPONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'coupons' && (
           <CouponsManager couponsList={couponsList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: MEDIA ═══════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: MEDIA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'media' && (
           <MediaManager mediaList={mediaList} flash={flash} />
         )}
 
-        {/* ══════════════════ TAB: ANALYTICS ═══════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: ANALYTICS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'analytics' && (
           <AnalyticsView
             ordersList={localOrders}
@@ -1889,7 +1981,7 @@ export function AdminDashboardClient({
           />
         )}
 
-        {/* ══════════════════ TAB: SETTINGS ════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: SETTINGS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'settings' && (
           <div className="max-w-2xl space-y-4">
             {saveNotice && (
@@ -1933,7 +2025,7 @@ export function AdminDashboardClient({
 
               <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4 shadow-sm">
                 <h3 className="text-[11px] font-bold text-primary uppercase tracking-wider">Checkout Configuration</h3>
-                <p className="text-[10px] text-gray-400 -mt-2">These options are used on the public checkout page. Edit as JSON — never hardcoded in the storefront.</p>
+                <p className="text-[10px] text-gray-400 -mt-2">These options are used on the public checkout page. Edit as JSON â€” never hardcoded in the storefront.</p>
                 <Field label="Delivery Methods (JSON)">
                   <textarea
                     rows={4}
@@ -1961,7 +2053,7 @@ export function AdminDashboardClient({
         </div>
       </main>
 
-      {/* ══════════════════ MODALS ══════════════════════════════════════════ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
 
       {/* Order Detail Modal */}
       {selectedOrder && (
@@ -1993,8 +2085,8 @@ export function AdminDashboardClient({
                 </div>
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Delivery</p>
-                  <p className="text-xs text-gray-700">{selectedOrder.deliveryLocation || '—'}</p>
-                  <p className="text-xs text-gray-500">{selectedOrder.deliveryMethod || '—'}</p>
+                  <p className="text-xs text-gray-700">{selectedOrder.deliveryLocation || 'â€”'}</p>
+                  <p className="text-xs text-gray-500">{selectedOrder.deliveryMethod || 'â€”'}</p>
                   {selectedOrder.shippingAddress && <p className="text-xs text-gray-400">{selectedOrder.shippingAddress}</p>}
                 </div>
               </div>
@@ -2034,7 +2126,7 @@ export function AdminDashboardClient({
                 {Number(selectedOrder.discountAmount || 0) > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Discount {selectedOrder.couponCode && <span className="text-[9px] uppercase ml-1 text-gray-400">({selectedOrder.couponCode})</span>}</span>
-                    <span>−KES {Number(selectedOrder.discountAmount).toLocaleString()}</span>
+                    <span>âˆ’KES {Number(selectedOrder.discountAmount).toLocaleString()}</span>
                   </div>
                 )}
                 {Number(selectedOrder.deliveryCost || 0) > 0 && (
@@ -2044,7 +2136,7 @@ export function AdminDashboardClient({
                   <span>Total</span><span>KES {Number(selectedOrder.total).toLocaleString()}</span>
                 </div>
                 {Number(selectedOrder.refundedAmount || 0) > 0 && (
-                  <div className="flex justify-between text-red-500 font-bold"><span>Refunded</span><span>−KES {Number(selectedOrder.refundedAmount).toLocaleString()}</span></div>
+                  <div className="flex justify-between text-red-500 font-bold"><span>Refunded</span><span>âˆ’KES {Number(selectedOrder.refundedAmount).toLocaleString()}</span></div>
                 )}
               </div>
 
@@ -2052,7 +2144,7 @@ export function AdminDashboardClient({
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-1">
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Payment</p>
-                  <p className="text-gray-700">{selectedOrder.paymentMethod || '—'}</p>
+                  <p className="text-gray-700">{selectedOrder.paymentMethod || 'â€”'}</p>
                 </div>
                 {selectedOrder.notes && (
                   <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
@@ -2738,7 +2830,7 @@ export function AdminDashboardClient({
   )
 }
 
-// ─── InventoryTabs: merged Products + Stock management ──────────────────────
+// â”€â”€â”€ InventoryTabs: merged Products + Stock management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function InventoryTabs({ localProducts, localCategories, brandsList, departmentsList, productDepartmentsList, productSpecsList, productSearch, setProductSearch, filteredProducts, handleEditProduct, setShowProductModal, setShowDeleteConfirm, flash }: any) {
   const [subTab, setSubTab] = useState<'products' | 'stock'>('products')
   return (
@@ -2783,14 +2875,14 @@ function InventoryTabs({ localProducts, localCategories, brandsList, departments
                     return (
                       <tr key={prod.id} className="hover:bg-gray-50">
                         <td className="p-3">{prod.imageUrl ? <img src={prod.imageUrl} alt={prod.name} className="w-10 h-10 rounded-lg object-cover" /> : <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-[9px]">No img</div>}</td>
-                        <td className="p-3 font-mono text-gray-400 whitespace-nowrap">{prod.sku || '—'}</td>
+                        <td className="p-3 font-mono text-gray-400 whitespace-nowrap">{prod.sku || 'â€”'}</td>
                         <td className="p-3 font-bold text-gray-800 max-w-[180px]"><div className="truncate">{prod.name}</div>{prod.shortDescription && <div className="text-[10px] text-gray-400 font-normal truncate mt-0.5">{prod.shortDescription}</div>}</td>
                         <td className="p-3 text-gray-500 whitespace-nowrap">{cat?.name || `#${prod.categoryId}`}</td>
-                        <td className="p-3 text-gray-500 whitespace-nowrap">{brandsList.find((b: any) => b.id === prod.brandId)?.name || <span className="text-gray-300">—</span>}</td>
+                        <td className="p-3 text-gray-500 whitespace-nowrap">{brandsList.find((b: any) => b.id === prod.brandId)?.name || <span className="text-gray-300">â€”</span>}</td>
                         <td className="p-3 whitespace-nowrap"><div className="font-bold text-primary">KES {parseFloat(prod.salePrice || prod.price || '0').toLocaleString()}</div>{prod.salePrice && prod.price && <div className="text-[10px] text-gray-400 line-through">KES {parseFloat(prod.price).toLocaleString()}</div>}</td>
-                        <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${stockBadge(prod.stockStatus || 'in_stock')}`}>{(prod.stockStatus || 'in_stock').replace(/_/g, ' ')}</span>{Number(prod.stockQuantity) > 0 && <span className="text-[10px] text-gray-400 ml-1">×{prod.stockQuantity}</span>}</td>
+                        <td className="p-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${stockBadge(prod.stockStatus || 'in_stock')}`}>{(prod.stockStatus || 'in_stock').replace(/_/g, ' ')}</span>{Number(prod.stockQuantity) > 0 && <span className="text-[10px] text-gray-400 ml-1">Ã—{prod.stockQuantity}</span>}</td>
                         <td className="p-3 text-gray-500 whitespace-nowrap">{(prod.purchaseType || 'buy_online').replace(/_/g, ' ')}</td>
-                        <td className="p-3"><span className={`text-[10px] font-bold ${prod.isFeatured ? 'text-amber-500' : 'text-gray-300'}`}>{prod.isFeatured ? '★ Yes' : 'No'}</span></td>
+                        <td className="p-3"><span className={`text-[10px] font-bold ${prod.isFeatured ? 'text-amber-500' : 'text-gray-300'}`}>{prod.isFeatured ? 'â˜… Yes' : 'No'}</span></td>
                         <td className="p-3"><div className="flex items-center gap-1.5">
                           <button onClick={() => handleEditProduct(prod)} className="p-1.5 rounded-lg bg-gray-100 hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors" title="Edit"><Edit2 className="w-3.5 h-3.5" /></button>
                           <Link href={`/shop/product/${prod.slug}`} target="_blank"><button className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700 transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button></Link>
@@ -2814,7 +2906,7 @@ function InventoryTabs({ localProducts, localCategories, brandsList, departments
   )
 }
 
-// ─── Modal Wrapper Component ──────────────────────────────────────────────────
+// â”€â”€â”€ Modal Wrapper Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ModalWrap({ title, onClose, children, size = 'md' }: { title: string; onClose: () => void; children: React.ReactNode; size?: 'sm' | 'md' | 'lg' }) {
   const widths = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }
   return (
@@ -2831,3 +2923,4 @@ function ModalWrap({ title, onClose, children, size = 'md' }: { title: string; o
     </div>
   )
 }
+
