@@ -4,6 +4,8 @@ import { MainHeader } from '@/components/main-header'
 import { getPartners, getSiteSettings } from '@/lib/db-data'
 import { ExternalLink, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PartnersPage() {
   const [partnersList, siteSettings] = await Promise.all([getPartners(), getSiteSettings()])
 

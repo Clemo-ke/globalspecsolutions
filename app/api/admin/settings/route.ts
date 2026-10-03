@@ -4,6 +4,8 @@ import { siteSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
 
+import { normalizeImageUrl } from '@/lib/save-image'
+
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin()
@@ -13,11 +15,15 @@ export async function POST(req: NextRequest) {
 
     for (const [key, val] of Object.entries(body)) {
       if (typeof val === 'string') {
+        let finalVal = val
+        if (key.includes('logo') || key.includes('image') || key.includes('icon')) {
+          finalVal = await normalizeImageUrl(val, 'settings', key)
+        }
         const existing = await db.select().from(siteSettings).where(eq(siteSettings.settingKey, key))
         if (existing.length > 0) {
-          await db.update(siteSettings).set({ settingValue: val }).where(eq(siteSettings.settingKey, key))
+          await db.update(siteSettings).set({ settingValue: finalVal }).where(eq(siteSettings.settingKey, key))
         } else {
-          await db.insert(siteSettings).values({ settingKey: key, settingValue: val })
+          await db.insert(siteSettings).values({ settingKey: key, settingValue: finalVal })
         }
       }
     }

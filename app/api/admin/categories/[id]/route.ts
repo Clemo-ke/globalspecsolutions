@@ -3,6 +3,8 @@ import { productCategories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
 
+import { normalizeImageUrl } from '@/lib/save-image'
+
 // PUT /api/admin/categories/[id] - Update a category
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin()
@@ -19,7 +21,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.description !== undefined) updateData.description = body.description
     if (body.icon !== undefined) updateData.icon = body.icon
     if (body.color !== undefined) updateData.color = body.color
-    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl
+    if (body.imageUrl !== undefined) {
+      updateData.imageUrl = await normalizeImageUrl(body.imageUrl, 'categories', `cat-${catId}`)
+    }
     if (body.isActive !== undefined) updateData.isActive = Boolean(body.isActive)
 
     await db.update(productCategories).set(updateData).where(eq(productCategories.id, catId))

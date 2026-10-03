@@ -3,6 +3,8 @@ import { heroSlides } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
 
+import { normalizeImageUrl } from '@/lib/save-image'
+
 export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -15,6 +17,7 @@ export async function PUT(
   if (isNaN(id)) return new Response('Invalid ID', { status: 400 })
 
   const body = await req.json()
+  const imageUrl = body.imageUrl ? await normalizeImageUrl(body.imageUrl, 'hero', `hero-${id}`) : body.imageUrl
 
   await db
     .update(heroSlides)
@@ -22,7 +25,7 @@ export async function PUT(
       title: body.title,
       subtitle: body.subtitle,
       description: body.description,
-      imageUrl: body.imageUrl,
+      imageUrl,
       ctaText: body.ctaText,
       ctaLink: body.ctaLink,
       orderPosition: body.orderPosition !== undefined ? parseInt(body.orderPosition, 10) : 0,

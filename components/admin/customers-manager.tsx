@@ -9,9 +9,10 @@ interface Props {
   quotesList: any[]
 }
 
-export function CustomersManager({ customersList, ordersList, quotesList }: Props) {
+export function CustomersManager({ customersList, ordersList, quotesList, activeAccordion, onAccordionChange }: Props & { activeAccordion: {section:string, id:number|null}, onAccordionChange: (section:string, id:number|null) => void }) {
   const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState<number | null>(null)
+  // use accordion state from parent for auto-close across sections
+  const expanded = activeAccordion.section === 'customers' ? activeAccordion.id : null
 
   const ordersFor = (c: any) =>
     ordersList.filter((o: any) =>
@@ -59,7 +60,7 @@ export function CustomersManager({ customersList, ordersList, quotesList }: Prop
                 const isOpen = expanded === c.id
                 return (
                   <React.Fragment key={c.id}>
-                    <tr className="hover:bg-gray-50 cursor-pointer" onClick={() => setExpanded(isOpen ? null : c.id)}>
+                    <tr className="hover:bg-gray-50 cursor-pointer" onClick={() => onAccordionChange('customers', isOpen ? null : c.id)}>
                       <td className="p-3">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 shrink-0">

@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { products, productCategories, productSpecs, productDepartments, services, partners, solutions } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
+import { normalizeImageUrl } from '@/lib/save-image'
 
 export async function GET() {
   const session = await requireAdmin()
@@ -24,13 +25,14 @@ export async function POST(req: Request) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '')
+      const imageUrl = body.imageUrl ? await normalizeImageUrl(body.imageUrl, 'categories', 'cat') : ''
       await db.insert(productCategories).values({
         name: body.name,
         slug: body.slug || slug,
         description: body.description || '',
         icon: body.icon || '',
         color: body.color || '#2563eb',
-        imageUrl: body.imageUrl || '',
+        imageUrl,
       })
       return Response.json({ success: true, message: 'Category created' })
     }
@@ -41,15 +43,16 @@ export async function POST(req: Request) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '')
+      const imageUrl = body.imageUrl
+        ? await normalizeImageUrl(body.imageUrl, 'services', 'service')
+        : 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80'
       await db.insert(services).values({
         name: body.name,
         slug: body.slug || slug,
         description: body.description || '',
         details: body.details || body.description || '',
         icon: body.icon || 'Server',
-        imageUrl:
-          body.imageUrl ||
-          'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80',
+        imageUrl,
       })
       return Response.json({ success: true, message: 'Service created successfully' })
     }
@@ -60,14 +63,15 @@ export async function POST(req: Request) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '')
+      const imageUrl = body.imageUrl
+        ? await normalizeImageUrl(body.imageUrl, 'solutions', 'solution')
+        : 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80'
       await db.insert(solutions).values({
         title: body.title || body.name,
         slug: body.slug || slug,
         description: body.description || '',
         benefits: body.benefits || '',
-        imageUrl:
-          body.imageUrl ||
-          'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&auto=format&fit=crop&q=80',
+        imageUrl,
         isActive: true,
       })
       return Response.json({ success: true, message: 'Solution created successfully' })
@@ -79,12 +83,13 @@ export async function POST(req: Request) {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '')
+      const logoUrl = body.logoUrl
+        ? await normalizeImageUrl(body.logoUrl, 'partners', 'partner')
+        : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
       await db.insert(partners).values({
         name: body.name,
         slug: body.slug || slug,
-        logoUrl:
-          body.logoUrl ||
-          'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+        logoUrl,
         websiteUrl: body.websiteUrl || '',
         description: body.description || '',
         category: body.category || 'Technology Partner',
@@ -98,6 +103,10 @@ export async function POST(req: Request) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '')
 
+    const imageUrl = body.imageUrl
+      ? await normalizeImageUrl(body.imageUrl, 'products', 'product')
+      : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80'
+
     await db.insert(products).values({
       name: body.name,
       slug: body.slug || slug,
@@ -109,9 +118,7 @@ export async function POST(req: Request) {
       currency: body.currency || 'KES',
       categoryId: body.categoryId ? Number(body.categoryId) : 1,
       brandId: body.brandId ? Number(body.brandId) : null,
-      imageUrl:
-        body.imageUrl ||
-        'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80',
+      imageUrl,
       sku: body.sku || `GSS-${Math.floor(Math.random() * 9000 + 1000)}`,
       purchaseType: body.purchaseType || 'buy_online',
       stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 0,

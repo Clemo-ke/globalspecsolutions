@@ -5,6 +5,10 @@ import { getResources, getSiteSettings } from '@/lib/db-data'
 import { Download, FileText, ShieldCheck, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+// Always fetch fresh data — resources are added via admin
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function ResourcesPage() {
   const [resourcesList, siteSettings] = await Promise.all([getResources(), getSiteSettings()])
 
@@ -59,11 +63,20 @@ export default async function ResourcesPage() {
                   <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <ShieldCheck className="w-4 h-4" /> Verified Documentation
                   </span>
-                  <a href={item.fileUrl} download target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-2">
-                      Download PDF <Download className="w-4 h-4" />
-                    </Button>
-                  </a>
+                  {item.fileUrl ? (
+                    <a
+                      href={item.fileUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-2">
+                        Download {item.fileSize ? `(${item.fileSize})` : 'File'} <Download className="w-4 h-4" />
+                      </Button>
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">File not available</span>
+                  )}
                 </div>
               </div>
             ))}

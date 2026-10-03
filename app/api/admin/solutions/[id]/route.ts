@@ -3,6 +3,8 @@ import { solutions } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
 
+import { normalizeImageUrl } from '@/lib/save-image'
+
 // PUT /api/admin/solutions/[id] - Update a solution
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin()
@@ -17,7 +19,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.title !== undefined) updateData.title = body.title
     if (body.slug !== undefined) updateData.slug = body.slug
     if (body.description !== undefined) updateData.description = body.description
-    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl
+    if (body.imageUrl !== undefined) {
+      updateData.imageUrl = await normalizeImageUrl(body.imageUrl, 'solutions', `solution-${solutionId}`)
+    }
     if (body.benefits !== undefined) updateData.benefits = body.benefits
     if (body.orderPosition !== undefined) updateData.orderPosition = Number(body.orderPosition)
     if (body.isActive !== undefined) updateData.isActive = Boolean(body.isActive)

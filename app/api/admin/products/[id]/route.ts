@@ -3,6 +3,8 @@ import { products, productSpecs, productDepartments, inventoryTransactions } fro
 import { eq } from 'drizzle-orm'
 import { requireAdmin } from '@/lib/admin-guard'
 
+import { normalizeImageUrl } from '@/lib/save-image'
+
 // PUT /api/admin/products/[id] - Update a product
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin()
@@ -24,7 +26,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (body.currency !== undefined) updateData.currency = body.currency
     if (body.categoryId !== undefined) updateData.categoryId = Number(body.categoryId)
     if (body.brandId !== undefined) updateData.brandId = body.brandId ? Number(body.brandId) : null
-    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl
+    if (body.imageUrl !== undefined) {
+      updateData.imageUrl = await normalizeImageUrl(body.imageUrl, 'products', `product-${productId}`)
+    }
     if (body.sku !== undefined) updateData.sku = body.sku
     if (body.purchaseType !== undefined) updateData.purchaseType = body.purchaseType
     if (body.stockQuantity !== undefined) updateData.stockQuantity = Number(body.stockQuantity)

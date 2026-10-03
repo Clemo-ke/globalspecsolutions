@@ -19,36 +19,28 @@ export function MediaManager({ mediaList, flash }: Props) {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      try {
-        const res = await fetch('/api/admin/media', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: file.name,
-            url: reader.result as string,
-            mimeType: file.type,
-            size: file.size,
-            altText: altText || file.name.replace(/\.[^.]+$/, ''),
-          }),
-        })
-        const data = await res.json()
-        if (res.ok) {
-          setItems((prev) => [{ ...data, createdAt: new Date().toISOString() }, ...prev])
-          setAltText('')
-          flash(`Uploaded ${file.name}`)
-        } else {
-          flash('Upload failed', false)
-        }
-      } catch {
-        flash('Upload failed', false)
-      } finally {
-        setUploading(false)
-        if (fileRef.current) fileRef.current.value = ''
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      if (altText) fd.append('altText', altText)
+      const res = await fetch('/api/admin/media', {
+        method: 'POST',
+        body: fd,
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setItems((prev) => [{ ...data, createdAt: new Date().toISOString() }, ...prev])
+        setAltText('')
+        flash(`Uploaded ${file.name}`)
+      } else {
+        flash(data.error || 'Upload failed', false)
       }
+    } catch {
+      flash('Upload failed', false)
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
-    reader.readAsDataURL(file)
   }
 
   const copyUrl = async (item: any) => {
@@ -57,7 +49,7 @@ export function MediaManager({ mediaList, flash }: Props) {
       setCopied(item.id)
       setTimeout(() => setCopied(null), 1500)
     } catch {
-      flash('Copy failed — URLs are long data: URIs', false)
+      flash('Copy failed', false)
     }
   }
 
@@ -79,7 +71,7 @@ export function MediaManager({ mediaList, flash }: Props) {
         <div className="flex-1 space-y-2">
           <h3 className="text-[11px] font-bold text-primary uppercase tracking-wider">Upload Media</h3>
           <p className="text-[11px] text-gray-500">
-            Uploaded images are stored inline as data URLs and can be referenced from CMS fields (logo, hero, products, partners).
+            Uploaded images are saved as server assets and can be referenced from CMS fields (logo, hero, products, partners).
           </p>
           <input
             value={altText}

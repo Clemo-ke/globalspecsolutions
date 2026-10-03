@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
@@ -62,6 +62,7 @@ import { AnalyticsView } from '@/components/admin/analytics-view'
 import { ContentManager, EntityConfig } from '@/components/admin/content-manager'
 import { UsersManager } from '@/components/admin/users-manager'
 import { RolesManager } from '@/components/admin/roles-manager'
+import { ResourcesManager } from '@/components/admin/resources-manager'
 import {
   AreaTrendChart,
   DonutShareChart,
@@ -466,6 +467,11 @@ export function AdminDashboardClient({
   const [overviewChartRange, setOverviewChartRange] = useState<'7' | '30' | 'all'>('30')
   const [overviewOrderSearch, setOverviewOrderSearch] = useState('')
   const [orderStatusFilter, setOrderStatusFilter] = useState('All')
+  // shared accordion state for modules
+  const [activeAccordion, setActiveAccordion] = useState<{section:string, id:number|null}>({section:'', id:null})
+  const handleAccordionChange = (section:string, id:number|null) => {
+    setActiveAccordion(prev => ({ section, id }))
+  }
   const [quoteStatusFilter, setQuoteStatusFilter] = useState('All')
   const [expandedQuote, setExpandedQuote] = useState<number | null>(null)
   const [convertingQuote, setConvertingQuote] = useState<number | null>(null)
@@ -476,12 +482,27 @@ export function AdminDashboardClient({
     setTimeout(() => setNotice(null), 3500)
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (url: string) => void) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (url: string) => void,
+    folder = 'uploads'
+  ) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = () => setter(reader.result as string)
-    reader.readAsDataURL(file)
+    e.target.value = ''
+    flash('Uploading image…')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', folder)
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { flash(data.error || 'Upload failed', false); return }
+      setter(data.url)
+      flash('Image uploaded ✓')
+    } catch {
+      flash('Image upload failed', false)
+    }
   }
 
   // â”€â”€â”€ Settings save â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -690,17 +711,22 @@ export function AdminDashboardClient({
     e.preventDefault()
     setCreating(true)
     try {
-      const res = await fetch('/api/admin/products', {
+      const res = await fetch('/api/admin/partners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'partner', ...newPartner }),
+        body: JSON.stringify(newPartner),
       })
       if (res.ok) {
         setShowPartnerModal(false)
         setNewPartner(emptyPartner)
         flash('Partner created')
         window.location.reload()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        flash(data.error || 'Failed to create partner', false)
       }
+    } catch (err: any) {
+      flash(err.message || 'Failed to create partner', false)
     } finally {
       setCreating(false)
     }
@@ -726,8 +752,11 @@ export function AdminDashboardClient({
         setShowEditPartnerModal(false)
         flash('Partner updated')
       } else {
-        flash('Failed to update partner', false)
+        const data = await res.json().catch(() => ({}))
+        flash(data.error || 'Failed to update partner', false)
       }
+    } catch (err: any) {
+      flash(err.message || 'Failed to update partner', false)
     } finally {
       setSaving(false)
     }
@@ -1018,7 +1047,14 @@ export function AdminDashboardClient({
     return (
       <div className="mt-1">
         <button
-          onClick={() => setExpandedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }))}
+          onClick={() => setExpandedGroups((prev) => {
+            const isOpen = prev[groupKey]
+            // close all groups, then toggle this one — accordion behaviour
+            const next: Record<string, boolean> = {}
+            Object.keys(prev).forEach((k) => { next[k] = false })
+            next[groupKey] = !isOpen
+            return next
+          })}
           className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] font-semibold text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all uppercase tracking-wider"
         >
           <span className="flex items-center gap-2">{icon}{label}</span>
@@ -1123,7 +1159,7 @@ export function AdminDashboardClient({
       </aside>
 
       {/* â”€â”€ Main Content â”€â”€ */}
-      <main className="flex-1 min-h-screen bg-gray-50/50 overflow-y-auto">
+      <main className="flex-1 min-h-screen bg-gray-50/50 overflow-y-auto overflow-x-hidden">
         {/* Page header */}
         <div className="bg-white border-b border-gray-100 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-30">
           <div>
@@ -1915,7 +1951,7 @@ export function AdminDashboardClient({
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: RESOURCES / INSIGHTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {activeTab === 'resources' && (
-          <ContentManager config={RESOURCE_CONFIG} initialItems={resourcesList} flash={flash} />
+          <ResourcesManager initialItems={resourcesList} flash={flash} />
         )}
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: PAGES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
@@ -2305,7 +2341,7 @@ export function AdminDashboardClient({
                 <div className="flex gap-2">
                   <input value={newProduct.imageUrl} onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
                   <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px]">
-                    Upload<input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewProduct({ ...newProduct, imageUrl: url }))} />
+                    Upload<input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewProduct((prev: any) => ({ ...prev, imageUrl: url })), 'products')} />
                   </label>
                 </div>
               </Field>
@@ -2444,7 +2480,7 @@ export function AdminDashboardClient({
                 <div className="flex gap-2">
                   <input value={editProduct.imageUrl || ''} onChange={(e) => setEditProduct({ ...editProduct, imageUrl: e.target.value })} className={inputCls} placeholder="https://..." />
                   <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px]">
-                    Upload<input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditProduct({ ...editProduct, imageUrl: url }))} />
+                    Upload<input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditProduct((prev: any) => ({ ...prev, imageUrl: url })), 'products')} />
                   </label>
                 </div>
               </Field>
@@ -2624,7 +2660,7 @@ export function AdminDashboardClient({
                     <input value={newPartner.logoUrl} onChange={(e) => setNewPartner({ ...newPartner, logoUrl: e.target.value })} className={inputCls} placeholder="https://... or upload below" />
                     <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px] flex items-center gap-1">
                       Upload Logo
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewPartner({ ...newPartner, logoUrl: url }))} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewPartner((prev: any) => ({ ...prev, logoUrl: url })), 'partners')} />
                     </label>
                   </div>
                   {newPartner.logoUrl && (
@@ -2664,7 +2700,7 @@ export function AdminDashboardClient({
                     <input value={editPartner.logoUrl || ''} onChange={(e) => setEditPartner({ ...editPartner, logoUrl: e.target.value })} className={inputCls} placeholder="https://..." />
                     <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px] flex items-center gap-1">
                       Upload Logo
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditPartner({ ...editPartner, logoUrl: url }))} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditPartner((prev: any) => ({ ...prev, logoUrl: url })), 'partners')} />
                     </label>
                   </div>
                   {editPartner.logoUrl && (
@@ -2708,7 +2744,7 @@ export function AdminDashboardClient({
                     <input value={newHeroSlide.imageUrl} onChange={(e) => setNewHeroSlide({ ...newHeroSlide, imageUrl: e.target.value })} className={inputCls} placeholder="https://images.unsplash.com/..." />
                     <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px] flex items-center gap-1">
                       Upload Image
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewHeroSlide({ ...newHeroSlide, imageUrl: url }))} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setNewHeroSlide((prev: any) => ({ ...prev, imageUrl: url })), 'hero')} />
                     </label>
                   </div>
                   {newHeroSlide.imageUrl && (
@@ -2767,7 +2803,7 @@ export function AdminDashboardClient({
                     <input value={editHeroSlide.imageUrl || ''} onChange={(e) => setEditHeroSlide({ ...editHeroSlide, imageUrl: e.target.value })} className={inputCls} />
                     <label className="shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg cursor-pointer font-bold border border-gray-200 text-[10px] flex items-center gap-1">
                       Upload Image
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditHeroSlide({ ...editHeroSlide, imageUrl: url }))} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, (url) => setEditHeroSlide((prev: any) => ({ ...prev, imageUrl: url })), 'hero')} />
                     </label>
                   </div>
                   {editHeroSlide.imageUrl && (
