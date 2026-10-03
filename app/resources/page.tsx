@@ -65,10 +65,12 @@ export default async function ResourcesPage() {
                   </span>
                   {item.fileUrl ? (
                     <a
-                      href={item.fileUrl}
+                      href={
+                        item.fileUrl.startsWith('http')
+                          ? item.fileUrl
+                          : `/api/resources/download?file=${encodeURIComponent(item.fileUrl.replace(/^\/resources\//, ''))}`
+                      }
                       download
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold gap-2">
                         Download {item.fileSize ? `(${item.fileSize})` : 'File'} <Download className="w-4 h-4" />
