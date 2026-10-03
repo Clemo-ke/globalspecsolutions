@@ -21,6 +21,9 @@ export const auth = betterAuth({
     schema,
   }),
   baseURL: getBaseURL(),
+  advanced: {
+    useSecureCookies: false, // Ensures session cookies work across HTTP (IP and non-SSL domain) and HTTPS
+  },
   user: {
     additionalFields: {
       role: {
@@ -39,6 +42,7 @@ export const auth = betterAuth({
     'http://localhost:3000',
     'http://localhost:3005',
     'http://162.35.96.178',
+    'http://162.35.96.178:80',
     'http://162.35.96.178:3005',
     'https://global.clemwapms.com',
     'http://global.clemwapms.com',

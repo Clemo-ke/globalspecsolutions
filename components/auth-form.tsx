@@ -54,24 +54,27 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       return
     }
 
-    // Fresh session is the authoritative source for role-based redirects, but
-    // we also consult the role table-backed admin check because the stored role
-    // may already be normalized by the server before the client lander runs.
-    const sessionRes = await authClient.getSession()
-    const role = String((sessionRes.data?.user as any)?.role || (data?.user as any)?.role || '').toLowerCase()
-    const adminBySession = role === 'admin' || role === 'super-admin'
-    // Always do the server-side role lookup — it's the authoritative check
-    const adminByServerRoleLookup = await isAdminAfterLogin()
+    // Use full browser navigation for reliable cookie header transmission
+    const next = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('next') : null
+    const userRole = String((data?.user as any)?.role || '').toLowerCase().trim()
+    const userEmail = String((data?.user as any)?.email || email).toLowerCase().trim()
 
-    if (adminBySession || adminByServerRoleLookup) {
-      router.push('/admin')
-      router.refresh()
+    if (userEmail === 'admin@globalspecsolutions.com' || userRole === 'admin' || userRole === 'super-admin' || userEmail.startsWith('admin@')) {
+      window.location.href = '/admin'
       return
     }
 
-    const next = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('next') : null
-    router.push(next || '/account')
-    router.refresh()
+    if (next) {
+      window.location.href = next
+      return
+    }
+
+    const adminByServer = await isAdminAfterLogin()
+    if (adminByServer) {
+      window.location.href = '/admin'
+    } else {
+      window.location.href = '/account'
+    }
   }
 
   return (
@@ -152,26 +155,35 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           {!isSignUp && (
             <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs space-y-2">
               <div className="flex items-center justify-between text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                <span>Quick Demo Access</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Ready</span>
+                <span>Quick Admin Sign In</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">Verified</span>
               </div>
               <button
                 type="button"
-                onClick={async () => {
-                  try {
-                    await fetch('/api/auth/ensure-admin', { method: 'POST' })
-                  } catch {}
+                onClick={() => {
                   setEmail('admin@globalspecsolutions.com')
-                  setPassword('Admin@123456!')
+                  setPassword('Admin123!')
                   setError(null)
                 }}
                 className="w-full py-1.5 px-2.5 text-xs text-left font-medium bg-white dark:bg-slate-800 hover:bg-primary/5 hover:border-primary/40 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between transition-colors"
               >
                 <div>
-                  <div className="font-bold text-foreground">Admin Portal Demo</div>
+                  <div className="font-bold text-foreground">Admin (Admin123!)</div>
                   <div className="text-[10px] text-muted-foreground">admin@globalspecsolutions.com</div>
                 </div>
                 <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded">Auto-fill →</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@globalspecsolutions.com')
+                  setPassword('Admin@123456!')
+                  setError(null)
+                }}
+                className="w-full py-1 px-2.5 text-[11px] text-left font-medium bg-white dark:bg-slate-800 hover:bg-primary/5 hover:border-primary/40 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between transition-colors text-slate-600 dark:text-slate-400"
+              >
+                <span>Alternate: Admin@123456!</span>
+                <span className="text-[10px] text-primary underline">Fill</span>
               </button>
             </div>
           )}
